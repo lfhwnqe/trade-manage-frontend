@@ -105,6 +105,25 @@ _Clone and deploy your own copy of this project in one click._
    npm run dev
    ```
 
+### 工具函数：fetchWithAuth
+
+项目提供 `src/utils/fetchWithAuth.ts`，封装了带鉴权和自动刷新 token 的 `fetch`。
+
+```tsx
+import React from 'react';
+import { useFetchWithAuth } from '@/utils/fetchWithAuth';
+
+export default function Demo() {
+  const fetchAuth = useFetchWithAuth();
+  React.useEffect(() => {
+    fetchAuth('/api/data', { method: 'GET' })
+      .then(res => res.json())
+      .then(data => console.log(data));
+  }, [fetchAuth]);
+  return <div>Loading...</div>;
+}
+```
+
 Once running, the app will be available at [http://localhost:3000](http://localhost:3000)
 
 ---

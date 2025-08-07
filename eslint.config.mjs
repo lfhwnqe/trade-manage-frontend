@@ -62,6 +62,8 @@ export default [
       "spaced-comment": ["error", "always", { exceptions: ["-", "+"] }],
       "key-spacing": ["error", { beforeColon: false, afterColon: true }],
       "no-useless-rename": "error",
+      // Allow empty blocks intentionally or for future code
+      "no-empty": "off",
 
       // Import/Export Rules
       "import/no-mutable-exports": "error",
