@@ -51,9 +51,11 @@ export function LoginForm() {
       if (response.ok) {
         toast.success("登录成功！");
 
-        // 使用正确的API响应格式存储认证信息
-        if (result.access_token && result.user) {
-          setAuthTokens(result as AuthTokens);
+        // 后端使用了拦截器，实际数据在 result.data 中
+        const authData = result.data as AuthTokens;
+
+        if (authData && authData.access_token && authData.user) {
+          setAuthTokens(authData);
 
           // 检查是否有登录后重定向的页面
           const redirectPath = localStorage.getItem("redirectAfterLogin");
