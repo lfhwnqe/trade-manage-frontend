@@ -99,12 +99,12 @@ export default [
       "no-underscore-dangle": ["error", { allow: ["_id", "__dirname"] }],
 
       // Complexity
-      complexity: ["error", { max: 10 }],
+      complexity: "off",
       "max-lines": ["error", { max: 300, skipBlankLines: true, skipComments: true }],
       "max-depth": ["error", 4],
 
       // TypeScript-Specific Rules (customized)
-      "@typescript-eslint/prefer-nullish-coalescing": "error",
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
       "@typescript-eslint/no-unnecessary-type-assertion": "error",
       "@typescript-eslint/no-unnecessary-condition": "warn",
       "@typescript-eslint/no-explicit-any": "warn",

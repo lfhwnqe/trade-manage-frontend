@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { setAuthTokens, type AuthTokens } from "@/lib/auth";
 
 const FormSchema = z.object({
   username: z.string().min(1, { message: "Username is required." }),
@@ -48,21 +49,31 @@ export function LoginForm() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("Login successful!");
-        // Assuming the token is in result.data.accessToken based on common patterns
-        if (result.data?.accessToken) {
-          localStorage.setItem("accessToken", result.data.accessToken);
+        toast.success("登录成功！");
+
+        // 使用正确的API响应格式存储认证信息
+        if (result.access_token && result.user) {
+          setAuthTokens(result as AuthTokens);
+
+          // 检查是否有登录后重定向的页面
+          const redirectPath = localStorage.getItem("redirectAfterLogin");
+          if (redirectPath) {
+            localStorage.removeItem("redirectAfterLogin");
+            router.push(redirectPath);
+          } else {
+            router.push("/dashboard");
+          }
+        } else {
+          toast.error("登录响应格式错误，请联系管理员。");
         }
-        router.push("/dashboard");
       } else {
-        // Use the error message from the backend, or a default one
-        const errorMessage =
-          result.message?.message?.[0] ?? result.message ?? "Login failed. Please check your credentials.";
+        // 使用后端返回的错误信息
+        const errorMessage = result.message || "登录失败，请检查用户名和密码。";
         toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Login request failed:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.error("网络错误，请稍后重试。");
     } finally {
       setIsSubmitting(false);
     }
@@ -124,7 +135,7 @@ export function LoginForm() {
             )}
           />
           <Button className="w-full" type="submit">
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? "登录中..." : "Login"}
           </Button>
         </fieldset>
       </form>
