@@ -74,7 +74,7 @@ export function VerificationCodeForm({ username, email, password, onBack }: Veri
         }),
       });
 
-      if (verifyDebug.response?.status === 200) {
+      if (verifyDebug.response?.ok) {
         toast.success("邮箱验证成功！正在为您登录...");
 
         // 验证成功后自动登录
