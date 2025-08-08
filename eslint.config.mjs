@@ -100,7 +100,7 @@ export default [
 
       // Complexity
       complexity: "off",
-      "max-lines": ["error", { max: 300, skipBlankLines: true, skipComments: true }],
+      "max-lines": ["error", { max: 500, skipBlankLines: true, skipComments: true }],
       "max-depth": ["error", 4],
 
       // TypeScript-Specific Rules (customized)

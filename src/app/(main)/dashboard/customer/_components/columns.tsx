@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { CircleCheck, Loader, EllipsisVertical } from "lucide-react";
+import { CircleCheck, Loader, EllipsisVertical, User, Mail, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -19,9 +19,144 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { DataTableColumnHeader } from "../../../../../components/data-table/data-table-column-header";
 
-import { sectionSchema } from "./schema";
+import { customerSchema, sectionSchema, CustomerStatus, RiskLevel } from "./schema";
 import { TableCellViewer } from "./table-cell-viewer";
 
+type Customer = z.infer<typeof customerSchema>;
+
+// 客户列定义
+export const customerColumns: ColumnDef<Customer>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "customerId",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="客户ID" />,
+    cell: ({ row }) => <div className="font-mono text-sm">{row.original.customerId}</div>,
+  },
+  {
+    accessorKey: "firstName",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="姓名" />,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <User className="text-muted-foreground h-4 w-4" />
+        <span>
+          {row.original.lastName}
+          {row.original.firstName}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="邮箱" />,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Mail className="text-muted-foreground h-4 w-4" />
+        <span className="text-sm">{row.original.email}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "phone",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="手机号" />,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Phone className="text-muted-foreground h-4 w-4" />
+        <span className="text-sm">{row.original.phone}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="状态" />,
+    cell: ({ row }) => {
+      const status = row.original.status;
+      const statusConfig = {
+        [CustomerStatus.ACTIVE]: { label: "活跃", variant: "default" as const },
+        [CustomerStatus.INACTIVE]: { label: "非活跃", variant: "secondary" as const },
+        [CustomerStatus.SUSPENDED]: { label: "暂停", variant: "destructive" as const },
+      };
+
+      const config = statusConfig[status] || { label: status, variant: "outline" as const };
+
+      return <Badge variant={config.variant}>{config.label}</Badge>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: "riskLevel",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="风险等级" />,
+    cell: ({ row }) => {
+      const riskLevel = row.original.riskLevel;
+      const riskConfig = {
+        [RiskLevel.LOW]: { label: "低", variant: "outline" as const },
+        [RiskLevel.MEDIUM]: { label: "中", variant: "secondary" as const },
+        [RiskLevel.HIGH]: { label: "高", variant: "destructive" as const },
+      };
+
+      const config = riskConfig[riskLevel] || { label: riskLevel, variant: "outline" as const };
+
+      return <Badge variant={config.variant}>{config.label}</Badge>;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="创建时间" />,
+    cell: ({ row }) => {
+      const date = new Date(row.original.createdAt);
+      return <div className="text-muted-foreground text-sm">{date.toLocaleDateString("zh-CN")}</div>;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="data-[state=open]:bg-muted text-muted-foreground flex size-8" size="icon">
+            <EllipsisVertical />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem>查看详情</DropdownMenuItem>
+          <DropdownMenuItem>编辑</DropdownMenuItem>
+          <DropdownMenuItem>导出</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">删除</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+    enableSorting: false,
+  },
+];
+
+// 保留原有的dashboard columns以防其他地方使用
 export const dashboardColumns: ColumnDef<z.infer<typeof sectionSchema>>[] = [
   {
     id: "select",

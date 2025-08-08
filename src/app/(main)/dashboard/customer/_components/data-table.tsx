@@ -2,11 +2,12 @@
 
 import * as React from "react";
 
-import { Plus } from "lucide-react";
+import { Plus, Search, Filter, Download, Upload } from "lucide-react";
 import { z } from "zod";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,9 +18,147 @@ import { DataTablePagination } from "../../../../../components/data-table/data-t
 import { DataTableViewOptions } from "../../../../../components/data-table/data-table-view-options";
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
 
-import { dashboardColumns } from "./columns";
-import { sectionSchema } from "./schema";
+import { customerColumns, dashboardColumns } from "./columns";
+import { customerSchema, sectionSchema, Customer, CustomerStatus, RiskLevel } from "./schema";
 
+// 客户数据表格组件
+export function CustomerDataTable({
+  data: initialData,
+  loading = false,
+  error = null,
+  onRefresh,
+  onSearch,
+  onFilter,
+}: {
+  data: Customer[];
+  loading?: boolean;
+  error?: string | null;
+  onRefresh?: () => void;
+  onSearch?: (query: string) => void;
+  onFilter?: (filters: any) => void;
+}) {
+  const [data, setData] = React.useState(() => initialData);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<string>("all");
+  const [riskLevelFilter, setRiskLevelFilter] = React.useState<string>("all");
+
+  const columns = customerColumns;
+  const table = useDataTableInstance({
+    data,
+    columns,
+    getRowId: (row) => row.customerId,
+  });
+
+  // 更新数据当props变化时
+  React.useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    onSearch?.(query);
+  };
+
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(status);
+    onFilter?.({
+      status: status === "all" ? undefined : status,
+      riskLevel: riskLevelFilter === "all" ? undefined : riskLevelFilter,
+    });
+  };
+
+  const handleRiskLevelFilter = (riskLevel: string) => {
+    setRiskLevelFilter(riskLevel);
+    onFilter?.({
+      status: statusFilter === "all" ? undefined : statusFilter,
+      riskLevel: riskLevel === "all" ? undefined : riskLevel,
+    });
+  };
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 py-12">
+        <div className="text-destructive text-sm">加载客户数据时出错: {error}</div>
+        <Button onClick={onRefresh} variant="outline" size="sm">
+          重试
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full flex-col justify-start gap-6">
+      {/* 工具栏 */}
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex flex-1 items-center gap-2">
+          <div className="relative max-w-sm flex-1">
+            <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
+            <Input
+              placeholder="搜索客户姓名、邮箱或手机号..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={handleStatusFilter}>
+            <SelectTrigger className="w-32">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="状态" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部状态</SelectItem>
+              <SelectItem value={CustomerStatus.ACTIVE}>活跃</SelectItem>
+              <SelectItem value={CustomerStatus.INACTIVE}>非活跃</SelectItem>
+              <SelectItem value={CustomerStatus.SUSPENDED}>暂停</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={riskLevelFilter} onValueChange={handleRiskLevelFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="风险等级" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部等级</SelectItem>
+              <SelectItem value={RiskLevel.LOW}>低</SelectItem>
+              <SelectItem value={RiskLevel.MEDIUM}>中</SelectItem>
+              <SelectItem value={RiskLevel.HIGH}>高</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <DataTableViewOptions table={table} />
+          <Button variant="outline" size="sm">
+            <Upload className="h-4 w-4" />
+            <span className="hidden lg:inline">导入</span>
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4" />
+            <span className="hidden lg:inline">导出</span>
+          </Button>
+          <Button size="sm">
+            <Plus className="h-4 w-4" />
+            <span className="hidden lg:inline">新增客户</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* 数据表格 */}
+      <div className="relative flex flex-col gap-4 overflow-auto">
+        <div className="overflow-hidden rounded-lg border">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-muted-foreground text-sm">加载中...</div>
+            </div>
+          ) : (
+            <DataTableNew table={table} columns={columns} />
+          )}
+        </div>
+        <DataTablePagination table={table} />
+      </div>
+    </div>
+  );
+}
+
+// 保留原有的DataTable组件以防其他地方使用
 export function DataTable({ data: initialData }: { data: z.infer<typeof sectionSchema>[] }) {
   const [data, setData] = React.useState(() => initialData);
   const columns = withDndColumn(dashboardColumns);
