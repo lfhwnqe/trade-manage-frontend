@@ -29,6 +29,7 @@ export function CustomerDataTable({
   onRefresh,
   onSearch,
   onFilter,
+  onQuery,
 }: {
   data: Customer[];
   loading?: boolean;
@@ -36,6 +37,7 @@ export function CustomerDataTable({
   onRefresh?: () => void;
   onSearch?: (query: string) => void;
   onFilter?: (filters: any) => void;
+  onQuery?: () => void;
 }) {
   const [data, setData] = React.useState(() => initialData);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -123,6 +125,9 @@ export function CustomerDataTable({
               <SelectItem value={RiskLevel.HIGH}>高</SelectItem>
             </SelectContent>
           </Select>
+          <Button size="sm" onClick={() => onQuery?.()}>
+            <Search className="mr-2 h-4 w-4" /> 查询
+          </Button>
         </div>
         <div className="flex items-center gap-2">
           <DataTableViewOptions table={table} />

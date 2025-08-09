@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import useSWR from "swr";
+import { toast } from "sonner";
 import { fetchWithAuth } from "@/utils/fetch-with-auth";
 import { ChartAreaInteractive } from "./_components/chart-area-interactive";
 import { CustomerDataTable } from "./_components/data-table";
@@ -30,18 +31,30 @@ interface QueryParams {
 const fetcher = async (url: string) => {
   const res = await fetchWithAuth(url);
   if (!res.ok) {
-    throw new Error(`获取客户数据失败: ${res.status} ${res.statusText}`);
+    const errorData = await res.json().catch(() => ({}));
+    const message = errorData?.message?.message || `获取客户数据失败: ${res.status} ${res.statusText}`;
+    throw new Error(message);
   }
   return (await res.json()) as CustomerListResponse;
 };
 
 export default function Page() {
+  // 提交后用于请求的参数
   const [queryParams, setQueryParams] = React.useState<QueryParams>({
     page: 1,
     limit: 10,
     sortBy: "createdAt",
     sortOrder: "desc",
   });
+  // 表单编辑中的待提交参数（不触发请求）
+  const [formParams, setFormParams] = React.useState<QueryParams>({
+    page: 1,
+    limit: 10,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+  // 是否允许发起查询
+  const [enabled, setEnabled] = React.useState(false);
 
   // 构建请求 URL
   const paramsString = React.useMemo(() => {
@@ -54,25 +67,38 @@ export default function Page() {
     return sp.toString();
   }, [queryParams]);
 
-  const {
-    data: result,
-    error,
-    isLoading,
-    mutate,
-  } = useSWR(`/api/v1/customers?${paramsString}`, fetcher, { keepPreviousData: true, shouldRetryOnError: false });
+  const { data: result, error, isLoading, mutate } = useSWR(
+    enabled ? `/api/v1/customers?${paramsString}` : null,
+    fetcher,
+    { keepPreviousData: true, shouldRetryOnError: false }
+  );
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error.message);
+    }
+  }, [error]);
 
   const customers = result?.data ?? [];
 
   const handleRefresh = () => {
-    mutate();
+    if (enabled) mutate();
   };
 
+  // 仅更新表单参数，不触发请求
   const handleSearch = (query: string) => {
-    setQueryParams((prev) => ({ ...prev, search: query, page: 1 }));
+    setFormParams((prev) => ({ ...prev, search: query, page: 1 }));
   };
 
+  // 仅更新表单参数，不触发请求
   const handleFilter = (filters: { status?: string; riskLevel?: string }) => {
-    setQueryParams((prev) => ({ ...prev, ...filters, page: 1 }));
+    setFormParams((prev) => ({ ...prev, ...filters, page: 1 }));
+  };
+
+  // 点击“查询”按钮时提交表单参数并发起请求
+  const handleQuery = () => {
+    setQueryParams(formParams);
+    setEnabled(true);
   };
 
   return (
@@ -82,10 +108,10 @@ export default function Page() {
       <CustomerDataTable
         data={customers}
         loading={isLoading}
-        error={error ? error.message : null}
         onRefresh={handleRefresh}
         onSearch={handleSearch}
         onFilter={handleFilter}
+        onQuery={handleQuery}
       />
     </div>
   );
