@@ -7,7 +7,14 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,13 +27,21 @@ const phoneRegex = /^(\+86\s?)?1[3-9]\d{9}$/;
 
 const createCustomerSchema = z.object({
   email: z.string({ required_error: "邮箱地址不能为空" }).email({ message: "请输入有效的邮箱地址" }),
-  username: z.string().min(3, "登录账号至少需要3个字符").max(30, "登录账号不能超过30个字符").optional().or(z.literal("")),
+  username: z
+    .string()
+    .min(3, "登录账号至少需要3个字符")
+    .max(30, "登录账号不能超过30个字符")
+    .optional()
+    .or(z.literal("")),
   password: z.string().min(8, "登录密码至少需要8个字符").optional().or(z.literal("")),
   phone: z.string({ required_error: "手机号码不能为空" }).regex(phoneRegex, "请输入有效的中国大陆手机号码"),
   firstName: z.string({ required_error: "名不能为空" }).min(1, "名至少需要1个字符").max(50, "名不能超过50个字符"),
   lastName: z.string({ required_error: "姓不能为空" }).min(1, "姓至少需要1个字符").max(50, "姓不能超过50个字符"),
   idType: z.enum([IdType.ID_CARD, IdType.PASSPORT, IdType.OTHER], { required_error: "身份证件类型不能为空" }),
-  idNumber: z.string({ required_error: "身份证件号码不能为空" }).min(6, "身份证件号码至少需要6个字符").max(30, "身份证件号码不能超过30个字符"),
+  idNumber: z
+    .string({ required_error: "身份证件号码不能为空" })
+    .min(6, "身份证件号码至少需要6个字符")
+    .max(30, "身份证件号码不能超过30个字符"),
   dateOfBirth: z
     .string({ required_error: "出生日期不能为空" })
     .regex(/^\d{4}-\d{2}-\d{2}$/, "请输入有效的日期格式 (YYYY-MM-DD)"),
@@ -42,7 +57,15 @@ const createCustomerSchema = z.object({
 
 export type CreateCustomerInput = z.infer<typeof createCustomerSchema>;
 
-export function CreateCustomerDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpenChange: (v: boolean) => void; onCreated?: () => void }) {
+export function CreateCustomerDialog({
+  open,
+  onOpenChange,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onCreated?: () => void;
+}) {
   const fetchWithAuth = useFetchWithAuth();
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -82,7 +105,7 @@ export function CreateCustomerDialog({ open, onOpenChange, onCreated }: { open: 
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({} as any));
+        const err = await res.json().catch(() => ({}) as any);
         const msg = err?.message?.message || err?.message || `创建失败: ${res.status} ${res.statusText}`;
         throw new Error(msg);
       }
@@ -327,7 +350,7 @@ export function CreateCustomerDialog({ open, onOpenChange, onCreated }: { open: 
               )}
             />
 
-            <DialogFooter className="md:col-span-2 mt-2">
+            <DialogFooter className="mt-2 md:col-span-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
                 取消
               </Button>
@@ -341,4 +364,3 @@ export function CreateCustomerDialog({ open, onOpenChange, onCreated }: { open: 
     </Dialog>
   );
 }
-

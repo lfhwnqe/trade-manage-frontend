@@ -76,11 +76,15 @@ export default function Page() {
     return sp.toString();
   }, [queryParams]);
 
-  const { data: result, error, isLoading, mutate } = useSWR(
-    enabled ? `/api/v1/customers?${paramsString}` : null,
-    fetcher,
-    { keepPreviousData: true, shouldRetryOnError: false }
-  );
+  const {
+    data: result,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR(enabled ? `/api/v1/customers?${paramsString}` : null, fetcher, {
+    keepPreviousData: true,
+    shouldRetryOnError: false,
+  });
 
   React.useEffect(() => {
     if (error) {

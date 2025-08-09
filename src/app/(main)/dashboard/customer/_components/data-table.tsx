@@ -206,7 +206,10 @@ export function CustomerDataTable({
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs">姓名</Label>
-                <div className="text-sm">{selectedCustomer.lastName}{selectedCustomer.firstName}</div>
+                <div className="text-sm">
+                  {selectedCustomer.lastName}
+                  {selectedCustomer.firstName}
+                </div>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs">邮箱</Label>

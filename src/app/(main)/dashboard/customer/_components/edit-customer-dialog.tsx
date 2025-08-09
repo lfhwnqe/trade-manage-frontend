@@ -7,7 +7,14 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,18 +33,16 @@ const updateCustomerSchema = z.object({
   lastName: z.string().min(1, "姓至少需要1个字符").max(50, "姓不能超过50个字符").optional(),
   idType: z.enum([IdType.ID_CARD, IdType.PASSPORT, IdType.OTHER]).optional(),
   idNumber: z.string().min(6, "身份证件号码至少需要6个字符").max(30, "身份证件号码不能超过30个字符").optional(),
-  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "请输入有效的日期格式 (YYYY-MM-DD)").optional(),
+  dateOfBirth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "请输入有效的日期格式 (YYYY-MM-DD)")
+    .optional(),
   address: z.string().min(5, "联系地址至少需要5个字符").max(200, "联系地址不能超过200个字符").optional(),
   riskLevel: z.enum([RiskLevel.LOW, RiskLevel.MEDIUM, RiskLevel.HIGH]).optional(),
   status: z.enum([CustomerStatus.ACTIVE, CustomerStatus.INACTIVE, CustomerStatus.SUSPENDED]).optional(),
   remarks: z.string().max(1000, "备注信息不能超过1000个字符").optional(),
   // 允许为空字符串，提交时会转换为 undefined
-  wechatId: z
-    .string()
-    .min(1, "微信号至少需要1个字符")
-    .max(50, "微信号不能超过50个字符")
-    .optional()
-    .or(z.literal("")),
+  wechatId: z.string().min(1, "微信号至少需要1个字符").max(50, "微信号不能超过50个字符").optional().or(z.literal("")),
 });
 
 export type UpdateCustomerInput = z.infer<typeof updateCustomerSchema>;
@@ -110,7 +115,7 @@ export function EditCustomerDialog({
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({} as any));
+        const err = await res.json().catch(() => ({}) as any);
         const msg = err?.message?.message || err?.message || `更新失败: ${res.status} ${res.statusText}`;
         throw new Error(msg);
       }
@@ -317,7 +322,7 @@ export function EditCustomerDialog({
               )}
             />
 
-            <DialogFooter className="md:col-span-2 mt-2">
+            <DialogFooter className="mt-2 md:col-span-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
                 取消
               </Button>
