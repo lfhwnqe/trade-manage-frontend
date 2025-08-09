@@ -1,52 +1,10 @@
-# Repository Guidelines
+# Agent Output Guidelines
 
-This document provides a concise contributor guide for the **studio-admin** project.
+- 输出语言：尽量使用中文，确保表述清晰、直观、易于理解。
+- 语气与风格：专业、简明、可执行；避免冗长与含糊表达。
+- 结构与格式：
+  - 使用简短段落与小标题组织内容；必要时用要点列表。
+  - 对命令、文件路径与代码标识使用反引号（如 `npm run dev`、`src/components`）。
+- 具体性：结合本仓库上下文提供示例（命令、目录、命名模式）。
+- 一致性：遵循 `AGENTS.md` 的代码风格与贡献流程，优先中文输出；如涉及英文术语，保留原词并在首次处给出中文解释（如 “lint 校验”）。
 
-## Project Structure & Module Organization
-
-- `src/`: application code (pages, components, hooks, utils)
-- `public/`: static assets (images, fonts)
-- `src/scripts/`: code-generation scripts (e.g., theme presets)
-- `tests/`: unit and integration tests (co-located with code where applicable)
-
-## Build, Test, and Development Commands
-
-| Command          | Description                           |
-| ---------------- | ------------------------------------- |
-| `npm install`    | Install dependencies                  |
-| `npm run dev`    | Start Next.js dev server (hot reload) |
-| `npm run build`  | Compile production build              |
-| `npm test`       | Run unit and integration tests        |
-| `npm run lint`   | Validate code style with ESLint       |
-| `npm run format` | Auto-format code with Prettier        |
-
-## Coding Style & Naming Conventions
-
-- **Indentation**: 2 spaces
-- **Language**: TypeScript (TSX for React components)
-- **CSS**: Tailwind utility classes
-- **Naming**: camelCase for variables, PascalCase for components
-- **Linting/Formatting**: ESLint and Prettier (Husky pre-commit)
-
-## Testing Guidelines
-
-- **Frameworks**: Jest + React Testing Library
-- **File pattern**: `*.test.ts` or `*.test.tsx` alongside source files
-- **Run tests**: `npm test -- --watchAll` for TDD feedback
-
-## Commit & Pull Request Guidelines
-
-- **Commit messages**: present-tense, short summary (e.g. `feat: add auth hook`)
-- **Pull requests**: include description, linked issue, and screenshot/steps if UI changes
-- **Review**: ensure CI passes and lint/format checks are green before merging
-
-## Security & Configuration Tips
-
-- Store secrets in environment variables (e.g. `.env.local`)
-- Do not commit sensitive data or tokens
-
-## Agent-Specific Instructions
-
-- 尽量回复中文
-
-Thank you for contributing! Please follow these guidelines to keep the codebase consistent and maintainable.
