@@ -22,6 +22,7 @@ import { withDndColumn } from "../../../../../components/data-table/table-utils"
 import { getCustomerColumns, customerColumns as defaultCustomerColumns, dashboardColumns } from "./columns";
 import { customerSchema, sectionSchema, Customer, CustomerStatus, RiskLevel } from "./schema";
 import { CreateCustomerDialog } from "./create-customer-dialog";
+import { EditCustomerDialog } from "./edit-customer-dialog";
 
 // 客户数据表格组件
 export function CustomerDataTable({
@@ -50,12 +51,18 @@ export function CustomerDataTable({
   const [createOpen, setCreateOpen] = React.useState(false);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
+  const [editOpen, setEditOpen] = React.useState(false);
+  const [editCustomer, setEditCustomer] = React.useState<Customer | null>(null);
   const columns = React.useMemo(
     () =>
       getCustomerColumns({
         onViewDetail: (cust) => {
           setSelectedCustomer(cust);
           setDetailOpen(true);
+        },
+        onEdit: (cust) => {
+          setEditCustomer(cust);
+          setEditOpen(true);
         },
       }),
     [],
@@ -257,6 +264,17 @@ export function CustomerDataTable({
           ) : null}
         </DialogContent>
       </Dialog>
+
+      {/* 编辑客户 Dialog */}
+      <EditCustomerDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        customer={editCustomer}
+        onUpdated={() => {
+          onQuery?.();
+          onRefresh?.();
+        }}
+      />
     </div>
   );
 }

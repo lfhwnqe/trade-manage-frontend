@@ -25,8 +25,9 @@ import { TableCellViewer } from "./table-cell-viewer";
 type Customer = z.infer<typeof customerSchema>;
 
 // 客户列定义工厂，支持注入操作回调
-export function getCustomerColumns(opts?: { onViewDetail?: (customer: Customer) => void }): ColumnDef<Customer>[] {
+export function getCustomerColumns(opts?: { onViewDetail?: (customer: Customer) => void; onEdit?: (customer: Customer) => void }): ColumnDef<Customer>[] {
   const onViewDetail = opts?.onViewDetail;
+  const onEdit = opts?.onEdit;
   return [
   {
     id: "select",
@@ -147,7 +148,7 @@ export function getCustomerColumns(opts?: { onViewDetail?: (customer: Customer) 
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
           <DropdownMenuItem onClick={() => onViewDetail?.(row.original)}>查看详情</DropdownMenuItem>
-          <DropdownMenuItem>编辑</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onEdit?.(row.original)}>编辑</DropdownMenuItem>
           <DropdownMenuItem>导出</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive">删除</DropdownMenuItem>
