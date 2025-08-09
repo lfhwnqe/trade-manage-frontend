@@ -156,9 +156,6 @@ export function getCustomerColumns(opts?: {
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuItem onClick={() => onViewDetail?.(row.original)}>查看详情</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit?.(row.original)}>编辑</DropdownMenuItem>
-            <DropdownMenuItem>导出</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">删除</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
