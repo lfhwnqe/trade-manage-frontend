@@ -12,13 +12,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDataTableInstance } from "@/hooks/use-data-table-instance";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { DataTable as DataTableNew } from "../../../../../components/data-table/data-table";
 import { DataTablePagination } from "../../../../../components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "../../../../../components/data-table/data-table-view-options";
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
 
-import { customerColumns, dashboardColumns } from "./columns";
+import { getCustomerColumns, customerColumns as defaultCustomerColumns, dashboardColumns } from "./columns";
 import { customerSchema, sectionSchema, Customer, CustomerStatus, RiskLevel } from "./schema";
 import { CreateCustomerDialog } from "./create-customer-dialog";
 
@@ -47,8 +48,18 @@ export function CustomerDataTable({
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [riskLevelFilter, setRiskLevelFilter] = React.useState<string>("all");
   const [createOpen, setCreateOpen] = React.useState(false);
-
-  const columns = customerColumns;
+  const [detailOpen, setDetailOpen] = React.useState(false);
+  const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
+  const columns = React.useMemo(
+    () =>
+      getCustomerColumns({
+        onViewDetail: (cust) => {
+          setSelectedCustomer(cust);
+          setDetailOpen(true);
+        },
+      }),
+    [],
+  );
   const table = useDataTableInstance({
     data,
     columns,
@@ -172,6 +183,80 @@ export function CustomerDataTable({
           onRefresh?.();
         }}
       />
+
+      {/* 查看详情 Dialog */}
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>客户详情</DialogTitle>
+            <DialogDescription>查看客户的基本信息与状态。</DialogDescription>
+          </DialogHeader>
+          {selectedCustomer ? (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <Label className="text-muted-foreground text-xs">客户ID</Label>
+                <div className="font-mono text-sm break-all">{selectedCustomer.customerId}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">姓名</Label>
+                <div className="text-sm">{selectedCustomer.lastName}{selectedCustomer.firstName}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">邮箱</Label>
+                <div className="text-sm">{selectedCustomer.email}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">手机号</Label>
+                <div className="text-sm">{selectedCustomer.phone}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">证件类型</Label>
+                <div className="text-sm">{selectedCustomer.idType}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">证件号码</Label>
+                <div className="text-sm break-all">{selectedCustomer.idNumber}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">出生日期</Label>
+                <div className="text-sm">{selectedCustomer.dateOfBirth}</div>
+              </div>
+              <div className="md:col-span-2">
+                <Label className="text-muted-foreground text-xs">联系地址</Label>
+                <div className="text-sm">{selectedCustomer.address}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">风险等级</Label>
+                <div className="text-sm">{selectedCustomer.riskLevel}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">状态</Label>
+                <div className="text-sm">{selectedCustomer.status}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">创建时间</Label>
+                <div className="text-sm">{new Date(selectedCustomer.createdAt).toLocaleString("zh-CN")}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">更新时间</Label>
+                <div className="text-sm">{new Date(selectedCustomer.updatedAt).toLocaleString("zh-CN")}</div>
+              </div>
+              {selectedCustomer.wechatId && (
+                <div>
+                  <Label className="text-muted-foreground text-xs">微信号</Label>
+                  <div className="text-sm">{selectedCustomer.wechatId}</div>
+                </div>
+              )}
+              {selectedCustomer.remarks && (
+                <div className="md:col-span-2">
+                  <Label className="text-muted-foreground text-xs">备注</Label>
+                  <div className="text-sm whitespace-pre-wrap">{selectedCustomer.remarks}</div>
+                </div>
+              )}
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

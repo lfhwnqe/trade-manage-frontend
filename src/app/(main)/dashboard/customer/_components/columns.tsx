@@ -24,8 +24,10 @@ import { TableCellViewer } from "./table-cell-viewer";
 
 type Customer = z.infer<typeof customerSchema>;
 
-// 客户列定义
-export const customerColumns: ColumnDef<Customer>[] = [
+// 客户列定义工厂，支持注入操作回调
+export function getCustomerColumns(opts?: { onViewDetail?: (customer: Customer) => void }): ColumnDef<Customer>[] {
+  const onViewDetail = opts?.onViewDetail;
+  return [
   {
     id: "select",
     header: ({ table }) => (
@@ -144,7 +146,7 @@ export const customerColumns: ColumnDef<Customer>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>查看详情</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onViewDetail?.(row.original)}>查看详情</DropdownMenuItem>
           <DropdownMenuItem>编辑</DropdownMenuItem>
           <DropdownMenuItem>导出</DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -154,7 +156,11 @@ export const customerColumns: ColumnDef<Customer>[] = [
     ),
     enableSorting: false,
   },
-];
+  ];
+}
+
+// 默认列（无操作回调），兼容旧用法
+export const customerColumns: ColumnDef<Customer>[] = getCustomerColumns();
 
 // 保留原有的dashboard columns以防其他地方使用
 export const dashboardColumns: ColumnDef<z.infer<typeof sectionSchema>>[] = [
