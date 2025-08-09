@@ -94,8 +94,16 @@ export function RegisterForm() {
         } else {
           // 如果不需要验证，直接登录
           toast.success("注册成功！正在为您登录...");
-          // 这里可以添加自动登录逻辑
-          router.push("/auth/v1/login");
+          if (actualData.accessToken && actualData.refreshToken) {
+            setAuthTokens({
+              accessToken: actualData.accessToken,
+              refreshToken: actualData.refreshToken,
+            });
+            router.push("/dashboard");
+          } else {
+            // Fallback to login if tokens are not provided
+            router.push("/auth/v1/login");
+          }
         }
       } else {
         // 处理注册错误

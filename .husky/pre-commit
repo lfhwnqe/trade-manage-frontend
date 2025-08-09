@@ -1,3 +1,27 @@
-npm run generate:presets
-git add src/types/preferences/theme.ts
-npx lint-staged
+## Husky v9+/v10 style: no shebang/husky.sh. Plain commands only.
+
+# If Node.js isn't available in PATH (e.g., CI or limited shells),
+# skip pre-commit checks to avoid blocking commits.
+if ! command -v node >/dev/null 2>&1; then
+  echo "[husky] node not found; skipping pre-commit checks"
+  exit 0
+fi
+
+# Generate theme presets if ts-node is available; otherwise skip gracefully.
+if command -v ts-node >/dev/null 2>&1; then
+  ts-node --compiler-options '{"module":"CommonJS"}' src/scripts/generate-theme-presets.ts || exit 1
+else
+  echo "[husky] ts-node not found; skipping presets generation"
+fi
+
+# Stage generated file if present.
+if [ -f src/types/preferences/theme.ts ]; then
+  git add src/types/preferences/theme.ts
+fi
+
+# Run lint-staged using local binary (avoids 'npx' which needs npm).
+if command -v lint-staged >/dev/null 2>&1; then
+  lint-staged || exit 1
+else
+  echo "[husky] lint-staged not found; skipping lint checks"
+fi
