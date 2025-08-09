@@ -9,7 +9,16 @@ import { CustomerDataTable } from "./_components/data-table";
 import { SectionCards } from "./_components/section-cards";
 import { Customer } from "./_components/schema";
 
-interface CustomerListResponse {
+// 后端统一响应包装
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  timestamp?: string;
+  message?: unknown;
+}
+
+// 客户列表数据载荷
+interface CustomerListData {
   data: Customer[];
   total: number;
   page: number;
@@ -35,7 +44,7 @@ const fetcher = async (url: string) => {
     const message = errorData?.message?.message || `获取客户数据失败: ${res.status} ${res.statusText}`;
     throw new Error(message);
   }
-  return (await res.json()) as CustomerListResponse;
+  return (await res.json()) as ApiResponse<CustomerListData>;
 };
 
 export default function Page() {
@@ -79,7 +88,8 @@ export default function Page() {
     }
   }, [error]);
 
-  const customers = result?.data ?? [];
+  // 注意：后端返回为 { success, data: { data: Customer[], total, ... } }
+  const customers = result?.data?.data ?? [];
 
   const handleRefresh = () => {
     if (enabled) mutate();

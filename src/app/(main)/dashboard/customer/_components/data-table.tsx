@@ -20,6 +20,7 @@ import { withDndColumn } from "../../../../../components/data-table/table-utils"
 
 import { customerColumns, dashboardColumns } from "./columns";
 import { customerSchema, sectionSchema, Customer, CustomerStatus, RiskLevel } from "./schema";
+import { CreateCustomerDialog } from "./create-customer-dialog";
 
 // 客户数据表格组件
 export function CustomerDataTable({
@@ -30,6 +31,7 @@ export function CustomerDataTable({
   onSearch,
   onFilter,
   onQuery,
+  onCreated,
 }: {
   data: Customer[];
   loading?: boolean;
@@ -38,11 +40,13 @@ export function CustomerDataTable({
   onSearch?: (query: string) => void;
   onFilter?: (filters: any) => void;
   onQuery?: () => void;
+  onCreated?: () => void;
 }) {
   const [data, setData] = React.useState(() => initialData);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [riskLevelFilter, setRiskLevelFilter] = React.useState<string>("all");
+  const [createOpen, setCreateOpen] = React.useState(false);
 
   const columns = customerColumns;
   const table = useDataTableInstance({
@@ -139,7 +143,7 @@ export function CustomerDataTable({
             <Download className="h-4 w-4" />
             <span className="hidden lg:inline">导出</span>
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
             <span className="hidden lg:inline">新增客户</span>
           </Button>
@@ -159,6 +163,15 @@ export function CustomerDataTable({
         </div>
         <DataTablePagination table={table} />
       </div>
+      <CreateCustomerDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={() => {
+          // 触发查询并刷新
+          onQuery?.();
+          onRefresh?.();
+        }}
+      />
     </div>
   );
 }
