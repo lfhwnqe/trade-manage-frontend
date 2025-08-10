@@ -56,11 +56,6 @@ export function getCustomerColumns(opts?: {
       enableHiding: false,
     },
     {
-      accessorKey: "customerId",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="客户ID" />,
-      cell: ({ row }) => <div className="font-mono text-sm">{row.original.customerId}</div>,
-    },
-    {
       accessorKey: "firstName",
       header: ({ column }) => <DataTableColumnHeader column={column} title="姓名" />,
       cell: ({ row }) => (
