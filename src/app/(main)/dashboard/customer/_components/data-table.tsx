@@ -200,10 +200,7 @@ export function CustomerDataTable({
           </DialogHeader>
           {selectedCustomer ? (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div>
-                <Label className="text-muted-foreground text-xs">客户ID</Label>
-                <div className="font-mono text-sm break-all">{selectedCustomer.customerId}</div>
-              </div>
+              {/* 客户ID无展示需求，移除 */}
               <div>
                 <Label className="text-muted-foreground text-xs">姓名</Label>
                 <div className="text-sm">
