@@ -59,15 +59,20 @@ export const sidebarItems: NavGroup[] = [
         icon: LayoutDashboard,
       },
       {
-        title: "CRM",
-        url: "/dashboard/crm",
-        icon: ChartBar,
+        title: "产品管理",
+        url: "/dashboard/products",
+        icon: LayoutDashboard,
       },
-      {
-        title: "Finance",
-        url: "/dashboard/finance",
-        icon: Banknote,
-      },
+      // {
+      //   title: "CRM",
+      //   url: "/dashboard/crm",
+      //   icon: ChartBar,
+      // },
+      // {
+      //   title: "Finance",
+      //   url: "/dashboard/finance",
+      //   icon: Banknote,
+      // },
       // {
       //   title: "Analytics",
       //   url: "/dashboard/analytics",
