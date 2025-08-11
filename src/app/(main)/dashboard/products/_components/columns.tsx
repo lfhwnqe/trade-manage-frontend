@@ -21,6 +21,7 @@ import { DataTableColumnHeader } from "../../../../../components/data-table/data
 
 import { customerSchema, sectionSchema, CustomerStatus, RiskLevel } from "./schema";
 import { TableCellViewer } from "./table-cell-viewer";
+import { Product, ProductStatus, ProductType, RiskLevel as ProductRiskLevel } from "@/types/product";
 
 type Customer = z.infer<typeof customerSchema>;
 
@@ -161,6 +162,145 @@ export function getCustomerColumns(opts?: {
 
 // 默认列（无操作回调），兼容旧用法
 export const customerColumns: ColumnDef<Customer>[] = getCustomerColumns();
+
+// 产品列定义
+export function getProductColumns(opts?: {
+  onViewDetail?: (product: Product) => void;
+  onEdit?: (product: Product) => void;
+}): ColumnDef<Product>[] {
+  const onViewDetail = opts?.onViewDetail;
+  const onEdit = opts?.onEdit;
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+          />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "productName",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="产品名称" />,
+      cell: ({ row }) => <div className="text-sm font-medium">{row.original.productName}</div>,
+    },
+    {
+      accessorKey: "productType",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="产品类型" />,
+      cell: ({ row }) => {
+        const type = row.original.productType;
+        return <Badge variant="outline">{type}</Badge>;
+      },
+      filterFn: (row, id, value) => value.includes(row.getValue(id)),
+    },
+    {
+      accessorKey: "riskLevel",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="风险等级" />,
+      cell: ({ row }) => {
+        const riskLevel = row.original.riskLevel;
+        const riskConfig = {
+          [ProductRiskLevel.LOW]: { label: "低", variant: "outline" as const },
+          [ProductRiskLevel.MEDIUM]: { label: "中", variant: "secondary" as const },
+          [ProductRiskLevel.HIGH]: { label: "高", variant: "destructive" as const },
+        };
+        const config = riskConfig[riskLevel] || { label: String(riskLevel), variant: "outline" as const };
+        return <Badge variant={config.variant}>{config.label}</Badge>;
+      },
+    },
+    {
+      accessorKey: "expectedReturn",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="预期年化(%)" />,
+      cell: ({ row }) => <div className="text-sm">{row.original.expectedReturn}%</div>,
+    },
+    {
+      accessorKey: "minInvestment",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="最低投资" />,
+      cell: ({ row }) => <div className="text-sm">{row.original.minInvestment}</div>,
+    },
+    {
+      accessorKey: "maxInvestment",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="最高投资" />,
+      cell: ({ row }) => <div className="text-sm">{row.original.maxInvestment}</div>,
+    },
+    {
+      accessorKey: "maturityPeriod",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="期限(天)" />,
+      cell: ({ row }) => <div className="text-sm">{row.original.maturityPeriod}</div>,
+    },
+    {
+      accessorKey: "salesStartDate",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="销售期" />,
+      cell: ({ row }) => (
+        <div className="text-muted-foreground text-xs">
+          {row.original.salesStartDate} ~ {row.original.salesEndDate}
+        </div>
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="状态" />,
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const statusConfig: Record<
+          string,
+          { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+        > = {
+          [ProductStatus.ACTIVE]: { label: "上架", variant: "default" },
+          [ProductStatus.INACTIVE]: { label: "下架", variant: "secondary" },
+        };
+        const config = statusConfig[status] || { label: String(status), variant: "outline" };
+        return <Badge variant={config.variant}>{config.label}</Badge>;
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="创建时间" />,
+      cell: ({ row }) => {
+        const date = new Date(row.original.createdAt);
+        return <div className="text-muted-foreground text-sm">{date.toLocaleDateString("zh-CN")}</div>;
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+              size="icon"
+            >
+              <EllipsisVertical />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={() => onViewDetail?.(row.original)}>查看详情</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+      enableSorting: false,
+    },
+  ];
+}
+
+export const productColumns: ColumnDef<Product>[] = getProductColumns();
 
 // 保留原有的dashboard columns以防其他地方使用
 export const dashboardColumns: ColumnDef<z.infer<typeof sectionSchema>>[] = [

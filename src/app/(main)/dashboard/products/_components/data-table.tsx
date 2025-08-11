@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ProductType } from "@/types/product";
+import { ProductType, ProductStatus, Product } from "@/types/product";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDataTableInstance } from "@/hooks/use-data-table-instance";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -20,10 +20,9 @@ import { DataTablePagination } from "../../../../../components/data-table/data-t
 import { DataTableViewOptions } from "../../../../../components/data-table/data-table-view-options";
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
 
-import { getCustomerColumns, customerColumns as defaultCustomerColumns, dashboardColumns } from "./columns";
-import { customerSchema, sectionSchema, Customer, CustomerStatus } from "./schema";
+import { getProductColumns, dashboardColumns } from "./columns";
+import { sectionSchema } from "./schema";
 import { CreateProductDialog } from "./create-product-dialog";
-import { EditCustomerDialog } from "./edit-customer-dialog";
 
 // 客户数据表格组件
 export function CustomerDataTable({
@@ -36,7 +35,7 @@ export function CustomerDataTable({
   onQuery,
   onCreated,
 }: {
-  data: Customer[];
+  data: Product[];
   loading?: boolean;
   error?: string | null;
   onRefresh?: () => void;
@@ -53,19 +52,13 @@ export function CustomerDataTable({
   const [productTypeFilter, setProductTypeFilter] = React.useState<string>("ALL");
   const [createOpen, setCreateOpen] = React.useState(false);
   const [detailOpen, setDetailOpen] = React.useState(false);
-  const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
-  const [editOpen, setEditOpen] = React.useState(false);
-  const [editCustomer, setEditCustomer] = React.useState<Customer | null>(null);
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const columns = React.useMemo(
     () =>
-      getCustomerColumns({
-        onViewDetail: (cust) => {
-          setSelectedCustomer(cust);
+      getProductColumns({
+        onViewDetail: (prod) => {
+          setSelectedProduct(prod);
           setDetailOpen(true);
-        },
-        onEdit: (cust) => {
-          setEditCustomer(cust);
-          setEditOpen(true);
         },
       }),
     [],
@@ -73,7 +66,7 @@ export function CustomerDataTable({
   const table = useDataTableInstance({
     data,
     columns,
-    getRowId: (row) => row.customerId,
+    getRowId: (row) => row.productId,
   });
 
   // 更新数据当props变化时
@@ -135,9 +128,8 @@ export function CustomerDataTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">全部状态</SelectItem>
-              <SelectItem value={CustomerStatus.ACTIVE}>活跃</SelectItem>
-              <SelectItem value={CustomerStatus.INACTIVE}>非活跃</SelectItem>
-              <SelectItem value={CustomerStatus.SUSPENDED}>暂停</SelectItem>
+              <SelectItem value={ProductStatus.ACTIVE}>上架</SelectItem>
+              <SelectItem value={ProductStatus.INACTIVE}>下架</SelectItem>
             </SelectContent>
           </Select>
           <Select value={productTypeFilter} onValueChange={handleProductTypeFilter}>
@@ -200,86 +192,69 @@ export function CustomerDataTable({
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>客户详情</DialogTitle>
-            <DialogDescription>查看客户的基本信息与状态。</DialogDescription>
+            <DialogTitle>产品详情</DialogTitle>
+            <DialogDescription>查看产品的基本信息与状态。</DialogDescription>
           </DialogHeader>
-          {selectedCustomer ? (
+          {selectedProduct ? (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {/* 客户ID无展示需求，移除 */}
-              <div>
-                <Label className="text-muted-foreground text-xs">姓名</Label>
-                <div className="text-sm">
-                  {selectedCustomer.lastName}
-                  {selectedCustomer.firstName}
-                </div>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">邮箱</Label>
-                <div className="text-sm">{selectedCustomer.email}</div>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">手机号</Label>
-                <div className="text-sm">{selectedCustomer.phone}</div>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">证件类型</Label>
-                <div className="text-sm">{selectedCustomer.idType}</div>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">证件号码</Label>
-                <div className="text-sm break-all">{selectedCustomer.idNumber}</div>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">出生日期</Label>
-                <div className="text-sm">{selectedCustomer.dateOfBirth}</div>
-              </div>
               <div className="md:col-span-2">
-                <Label className="text-muted-foreground text-xs">联系地址</Label>
-                <div className="text-sm">{selectedCustomer.address}</div>
+                <Label className="text-muted-foreground text-xs">产品名称</Label>
+                <div className="text-sm font-medium">{selectedProduct.productName}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">产品类型</Label>
+                <div className="text-sm">{selectedProduct.productType}</div>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs">风险等级</Label>
-                <div className="text-sm">{selectedCustomer.riskLevel}</div>
+                <div className="text-sm">{selectedProduct.riskLevel}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">预期年化(%)</Label>
+                <div className="text-sm">{selectedProduct.expectedReturn}%</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">投资金额区间</Label>
+                <div className="text-sm">
+                  {selectedProduct.minInvestment} ~ {selectedProduct.maxInvestment}
+                </div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">期限(天)</Label>
+                <div className="text-sm">{selectedProduct.maturityPeriod}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">结息日期</Label>
+                <div className="text-sm">{selectedProduct.interestPaymentDate}</div>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">销售期</Label>
+                <div className="text-sm">
+                  {selectedProduct.salesStartDate} ~ {selectedProduct.salesEndDate}
+                </div>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs">状态</Label>
-                <div className="text-sm">{selectedCustomer.status}</div>
+                <div className="text-sm">{selectedProduct.status}</div>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs">创建时间</Label>
-                <div className="text-sm">{new Date(selectedCustomer.createdAt).toLocaleString("zh-CN")}</div>
+                <div className="text-sm">{new Date(selectedProduct.createdAt).toLocaleString("zh-CN")}</div>
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs">更新时间</Label>
-                <div className="text-sm">{new Date(selectedCustomer.updatedAt).toLocaleString("zh-CN")}</div>
+                <div className="text-sm">{new Date(selectedProduct.updatedAt).toLocaleString("zh-CN")}</div>
               </div>
-              {selectedCustomer.wechatId && (
-                <div>
-                  <Label className="text-muted-foreground text-xs">微信号</Label>
-                  <div className="text-sm">{selectedCustomer.wechatId}</div>
-                </div>
-              )}
-              {selectedCustomer.remarks && (
+              {selectedProduct.description && (
                 <div className="md:col-span-2">
-                  <Label className="text-muted-foreground text-xs">备注</Label>
-                  <div className="text-sm whitespace-pre-wrap">{selectedCustomer.remarks}</div>
+                  <Label className="text-muted-foreground text-xs">产品描述</Label>
+                  <div className="text-sm whitespace-pre-wrap">{selectedProduct.description}</div>
                 </div>
               )}
             </div>
           ) : null}
         </DialogContent>
       </Dialog>
-
-      {/* 编辑客户 Dialog */}
-      <EditCustomerDialog
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        customer={editCustomer}
-        onUpdated={() => {
-          onQuery?.();
-          onRefresh?.();
-        }}
-      />
     </div>
   );
 }

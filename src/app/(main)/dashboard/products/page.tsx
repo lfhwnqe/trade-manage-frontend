@@ -7,8 +7,7 @@ import { fetchWithAuth } from "@/utils/fetch-with-auth";
 import { ChartAreaInteractive } from "./_components/chart-area-interactive";
 import { CustomerDataTable } from "./_components/data-table";
 import { SectionCards } from "./_components/section-cards";
-import { Customer } from "./_components/schema";
-import { ProductType } from "@/types/product";
+import { ProductType, Product } from "@/types/product";
 
 // 后端统一响应包装
 interface ApiResponse<T> {
@@ -20,7 +19,7 @@ interface ApiResponse<T> {
 
 // 列表数据载荷（与后端统一返回结构对齐）
 interface CustomerListData {
-  data: Customer[];
+  data: Product[];
   total: number;
   page: number;
   limit: number;
