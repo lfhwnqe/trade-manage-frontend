@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ProductType } from "@/types/product";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDataTableInstance } from "@/hooks/use-data-table-instance";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -21,7 +22,7 @@ import { withDndColumn } from "../../../../../components/data-table/table-utils"
 
 import { getCustomerColumns, customerColumns as defaultCustomerColumns, dashboardColumns } from "./columns";
 import { customerSchema, sectionSchema, Customer, CustomerStatus } from "./schema";
-import { CreateCustomerDialog } from "./create-customer-dialog";
+import { CreateProductDialog } from "./create-product-dialog";
 import { EditCustomerDialog } from "./edit-customer-dialog";
 
 // 客户数据表格组件
@@ -138,14 +139,18 @@ export function CustomerDataTable({
               <SelectItem value={CustomerStatus.SUSPENDED}>暂停</SelectItem>
             </SelectContent>
           </Select>
-          <div className="max-w-xs">
-            <Input
-              placeholder="产品类型（可选）"
-              value={productTypeFilter}
-              onChange={(e) => handleProductTypeFilter(e.target.value)}
-              className="w-40"
-            />
-          </div>
+          <Select value={productTypeFilter} onValueChange={handleProductTypeFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="全部类型" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">全部类型</SelectItem>
+              <SelectItem value={ProductType.WEALTH}>理财</SelectItem>
+              <SelectItem value={ProductType.FUND}>基金</SelectItem>
+              <SelectItem value={ProductType.BOND}>债券</SelectItem>
+              <SelectItem value={ProductType.INSURANCE}>保险</SelectItem>
+            </SelectContent>
+          </Select>
           <Button size="sm" onClick={() => onQuery?.()}>
             <Search className="mr-2 h-4 w-4" /> 查询
           </Button>
@@ -162,7 +167,7 @@ export function CustomerDataTable({
           </Button>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
-            <span className="hidden lg:inline">新增客户</span>
+            <span className="hidden lg:inline">新增产品</span>
           </Button>
         </div>
       </div>
@@ -180,7 +185,7 @@ export function CustomerDataTable({
         </div>
         <DataTablePagination table={table} />
       </div>
-      <CreateCustomerDialog
+      <CreateProductDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
         onCreated={() => {

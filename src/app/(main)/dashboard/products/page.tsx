@@ -8,6 +8,7 @@ import { ChartAreaInteractive } from "./_components/chart-area-interactive";
 import { CustomerDataTable } from "./_components/data-table";
 import { SectionCards } from "./_components/section-cards";
 import { Customer } from "./_components/schema";
+import { ProductType } from "@/types/product";
 
 // 后端统一响应包装
 interface ApiResponse<T> {
@@ -31,7 +32,7 @@ interface QueryParams {
   limit?: number;
   search?: string;
   // 产品筛选参数
-  productType?: string;
+  productType?: ProductType;
   status?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
