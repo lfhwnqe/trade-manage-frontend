@@ -20,7 +20,7 @@ import { DataTableViewOptions } from "../../../../../components/data-table/data-
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
 
 import { getCustomerColumns, customerColumns as defaultCustomerColumns, dashboardColumns } from "./columns";
-import { customerSchema, sectionSchema, Customer, CustomerStatus, RiskLevel } from "./schema";
+import { customerSchema, sectionSchema, Customer, CustomerStatus } from "./schema";
 import { CreateCustomerDialog } from "./create-customer-dialog";
 import { EditCustomerDialog } from "./edit-customer-dialog";
 
@@ -47,7 +47,8 @@ export function CustomerDataTable({
   const [data, setData] = React.useState(() => initialData);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [riskLevelFilter, setRiskLevelFilter] = React.useState<string>("all");
+  // 产品类型筛选（替换原风险等级）
+  const [productTypeFilter, setProductTypeFilter] = React.useState<string>("");
   const [createOpen, setCreateOpen] = React.useState(false);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
@@ -87,15 +88,16 @@ export function CustomerDataTable({
     setStatusFilter(status);
     onFilter?.({
       status: status === "all" ? undefined : status,
-      riskLevel: riskLevelFilter === "all" ? undefined : riskLevelFilter,
+      productType: productTypeFilter || undefined,
     });
   };
 
-  const handleRiskLevelFilter = (riskLevel: string) => {
-    setRiskLevelFilter(riskLevel);
+  // 产品类型筛选输入变化
+  const handleProductTypeFilter = (value: string) => {
+    setProductTypeFilter(value);
     onFilter?.({
       status: statusFilter === "all" ? undefined : statusFilter,
-      riskLevel: riskLevel === "all" ? undefined : riskLevel,
+      productType: value || undefined,
     });
   };
 
@@ -118,7 +120,7 @@ export function CustomerDataTable({
           <div className="relative max-w-sm flex-1">
             <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
             <Input
-              placeholder="搜索客户姓名、邮箱或手机号..."
+              placeholder="搜索产品名称..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="pl-8"
@@ -136,17 +138,14 @@ export function CustomerDataTable({
               <SelectItem value={CustomerStatus.SUSPENDED}>暂停</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={riskLevelFilter} onValueChange={handleRiskLevelFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="风险等级" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">全部等级</SelectItem>
-              <SelectItem value={RiskLevel.LOW}>低</SelectItem>
-              <SelectItem value={RiskLevel.MEDIUM}>中</SelectItem>
-              <SelectItem value={RiskLevel.HIGH}>高</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="max-w-xs">
+            <Input
+              placeholder="产品类型（可选）"
+              value={productTypeFilter}
+              onChange={(e) => handleProductTypeFilter(e.target.value)}
+              className="w-40"
+            />
+          </div>
           <Button size="sm" onClick={() => onQuery?.()}>
             <Search className="mr-2 h-4 w-4" /> 查询
           </Button>
