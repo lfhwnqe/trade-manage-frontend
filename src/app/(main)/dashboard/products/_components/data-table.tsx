@@ -49,7 +49,8 @@ export function CustomerDataTable({
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   // 产品类型筛选（替换原风险等级）
-  const [productTypeFilter, setProductTypeFilter] = React.useState<string>("");
+  // 使用 ALL 作为“全部类型”的哨兵值，避免 SelectItem 为空字符串
+  const [productTypeFilter, setProductTypeFilter] = React.useState<string>("ALL");
   const [createOpen, setCreateOpen] = React.useState(false);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
@@ -98,7 +99,7 @@ export function CustomerDataTable({
     setProductTypeFilter(value);
     onFilter?.({
       status: statusFilter === "all" ? undefined : statusFilter,
-      productType: value || undefined,
+      productType: value === "ALL" ? undefined : value,
     });
   };
 
@@ -144,7 +145,7 @@ export function CustomerDataTable({
               <SelectValue placeholder="全部类型" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">全部类型</SelectItem>
+              <SelectItem value="ALL">全部类型</SelectItem>
               <SelectItem value={ProductType.WEALTH}>理财</SelectItem>
               <SelectItem value={ProductType.FUND}>基金</SelectItem>
               <SelectItem value={ProductType.BOND}>债券</SelectItem>
