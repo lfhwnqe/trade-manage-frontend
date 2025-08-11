@@ -17,7 +17,7 @@ interface ApiResponse<T> {
   message?: unknown;
 }
 
-// 客户列表数据载荷
+// 列表数据载荷（与后端统一返回结构对齐）
 interface CustomerListData {
   data: Customer[];
   total: number;
@@ -30,18 +30,19 @@ interface QueryParams {
   page?: number;
   limit?: number;
   search?: string;
+  // 产品筛选参数
+  productType?: string;
   status?: string;
-  riskLevel?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
 
-// SWR fetcher for customer data
+// SWR fetcher for products data
 const fetcher = async (url: string) => {
   const res = await fetchWithAuth(url);
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    const message = errorData?.message?.message || `获取客户数据失败: ${res.status} ${res.statusText}`;
+    const message = errorData?.message?.message || `获取产品数据失败: ${res.status} ${res.statusText}`;
     throw new Error(message);
   }
   return (await res.json()) as ApiResponse<CustomerListData>;
@@ -81,7 +82,7 @@ export default function Page() {
     error,
     isLoading,
     mutate,
-  } = useSWR(enabled ? `/api/v1/customers?${paramsString}` : null, fetcher, {
+  } = useSWR(enabled ? `/api/v1/products?${paramsString}` : null, fetcher, {
     keepPreviousData: true,
     shouldRetryOnError: false,
   });
@@ -105,8 +106,14 @@ export default function Page() {
   };
 
   // 仅更新表单参数，不触发请求
-  const handleFilter = (filters: { status?: string; riskLevel?: string }) => {
-    setFormParams((prev) => ({ ...prev, ...filters, page: 1 }));
+  // 适配产品筛选参数：仅接收 status、productType，忽略旧的 riskLevel
+  const handleFilter = (filters: any) => {
+    setFormParams((prev) => ({
+      ...prev,
+      status: filters?.status,
+      productType: filters?.productType,
+      page: 1,
+    }));
   };
 
   // 点击“查询”按钮时提交表单参数并发起请求
