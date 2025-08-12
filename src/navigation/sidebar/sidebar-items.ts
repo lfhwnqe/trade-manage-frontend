@@ -63,6 +63,11 @@ export const sidebarItems: NavGroup[] = [
         url: "/dashboard/products",
         icon: LayoutDashboard,
       },
+      {
+        title: "交易记录",
+        url: "/dashboard/transaction",
+        icon: LayoutDashboard,
+      },
       // {
       //   title: "CRM",
       //   url: "/dashboard/crm",
