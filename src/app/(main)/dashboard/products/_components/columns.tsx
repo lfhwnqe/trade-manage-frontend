@@ -263,6 +263,7 @@ export function getProductColumns(opts?: {
         > = {
           [ProductStatus.ACTIVE]: { label: "上架", variant: "default" },
           [ProductStatus.INACTIVE]: { label: "下架", variant: "secondary" },
+          [ProductStatus.SUSPENDED]: { label: "暂停", variant: "destructive" },
         };
         const config = statusConfig[status] || { label: String(status), variant: "outline" };
         return <Badge variant={config.variant}>{config.label}</Badge>;
@@ -292,6 +293,7 @@ export function getProductColumns(opts?: {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuItem onClick={() => onViewDetail?.(row.original)}>查看详情</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit?.(row.original)}>编辑</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),

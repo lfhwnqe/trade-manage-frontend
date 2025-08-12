@@ -17,8 +17,9 @@ export enum RiskLevel {
 
 // 产品状态（若后端扩展可在此补充）
 export enum ProductStatus {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  SUSPENDED = "suspended",
 }
 
 // 产品实体（用于表格）

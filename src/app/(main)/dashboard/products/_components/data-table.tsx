@@ -23,6 +23,7 @@ import { withDndColumn } from "../../../../../components/data-table/table-utils"
 import { getProductColumns, dashboardColumns } from "./columns";
 import { sectionSchema } from "./schema";
 import { CreateProductDialog } from "./create-product-dialog";
+import { EditProductDialog } from "./edit-product-dialog";
 
 // 客户数据表格组件
 export function CustomerDataTable({
@@ -53,12 +54,17 @@ export function CustomerDataTable({
   const [createOpen, setCreateOpen] = React.useState(false);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+  const [editOpen, setEditOpen] = React.useState(false);
   const columns = React.useMemo(
     () =>
       getProductColumns({
         onViewDetail: (prod) => {
           setSelectedProduct(prod);
           setDetailOpen(true);
+        },
+        onEdit: (prod) => {
+          setSelectedProduct(prod);
+          setEditOpen(true);
         },
       }),
     [],
@@ -130,6 +136,7 @@ export function CustomerDataTable({
               <SelectItem value="all">全部状态</SelectItem>
               <SelectItem value={ProductStatus.ACTIVE}>上架</SelectItem>
               <SelectItem value={ProductStatus.INACTIVE}>下架</SelectItem>
+              <SelectItem value={ProductStatus.SUSPENDED}>暂停</SelectItem>
             </SelectContent>
           </Select>
           <Select value={productTypeFilter} onValueChange={handleProductTypeFilter}>
@@ -183,6 +190,17 @@ export function CustomerDataTable({
         onOpenChange={setCreateOpen}
         onCreated={() => {
           // 触发查询并刷新
+          onQuery?.();
+          onRefresh?.();
+        }}
+      />
+
+      {/* 编辑产品 Dialog */}
+      <EditProductDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        product={selectedProduct}
+        onUpdated={() => {
           onQuery?.();
           onRefresh?.();
         }}
