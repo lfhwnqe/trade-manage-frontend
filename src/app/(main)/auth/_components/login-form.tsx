@@ -70,9 +70,20 @@ export function LoginForm() {
           toast.error("登录响应格式错误，请联系管理员。");
         }
       } else {
-        // 使用后端返回的错误信息
-        const errorMessage = result.message || "登录失败，请检查用户名和密码。";
-        toast.error(errorMessage);
+        // 使用后端返回的错误信息（兼容 message 为对象或字符串的情况）
+        const errorMessage = (() => {
+          const msg = result?.message;
+          if (typeof msg === "string" && msg.trim()) return msg;
+          if (msg && typeof msg === "object") {
+            if (typeof msg.message === "string" && msg.message.trim()) return msg.message;
+            if (typeof msg.error === "string" && msg.error.trim()) return msg.error;
+          }
+          if (typeof result?.error === "string" && result.error.trim()) return result.error;
+          // 根据常见 401 返回给出更友好的提示
+          if (response.status === 401) return "用户名或密码错误";
+          return "登录失败，请稍后重试。";
+        })();
+        toast.error(errorMessage as string);
       }
     } catch (error) {
       console.error("Login request failed:", error);
