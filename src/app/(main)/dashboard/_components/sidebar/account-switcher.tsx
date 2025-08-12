@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react";
 
@@ -15,18 +15,41 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn, getInitials } from "@/lib/utils";
 import { logout } from "@/lib/auth";
+import { useAuthStore } from "@/stores/auth/auth-store";
 
-export function AccountSwitcher({
-  users,
-}: {
-  readonly users: ReadonlyArray<{
-    readonly id: string;
-    readonly name: string;
-    readonly email: string;
-    readonly avatar: string;
-    readonly role: string;
-  }>;
-}) {
+type SwitchUser = {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: string;
+};
+
+export function AccountSwitcher() {
+  const authUser = useAuthStore((s) => s.user);
+  const users = useMemo<SwitchUser[]>(() => {
+    if (!authUser) {
+      return [
+        {
+          id: "guest",
+          name: "Guest",
+          email: "",
+          avatar: "",
+          role: "guest",
+        },
+      ];
+    }
+    return [
+      {
+        id: authUser.userId,
+        name: authUser.name || authUser.username || authUser.email || "User",
+        email: authUser.email,
+        avatar: authUser.avatar || "",
+        role: authUser.role || "user",
+      },
+    ];
+  }, [authUser]);
+
   const [activeUser, setActiveUser] = useState(users[0]);
 
   return (

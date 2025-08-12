@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { setAuthTokens, type AuthTokens } from "@/lib/auth";
+import { setAuthTokens } from "@/lib/auth";
+import type { AuthTokens } from "@/types/auth";
 
 const FormSchema = z.object({
   username: z.string().min(1, { message: "Username is required." }),

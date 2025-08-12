@@ -5,23 +5,13 @@
  * 包括token管理、cookie操作、用户状态管理等
  */
 
+import { useAuthStore } from "@/stores/auth/auth-store";
+import type { AuthTokens, User } from "@/types/auth";
+
 // Token存储键名
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 const AUTH_TOKEN_COOKIE = "auth-token";
-
-// 用户信息类型定义
-export interface User {
-  userId: string;
-  username: string;
-  email: string;
-  role: string;
-}
-
-export interface AuthTokens {
-  access_token: string;
-  user: User;
-}
 
 /**
  * 设置认证token到localStorage和cookie
@@ -37,6 +27,9 @@ export function setAuthTokens(tokens: AuthTokens): void {
 
   // 存储用户信息
   localStorage.setItem("user", JSON.stringify(tokens.user));
+
+  // 同步到全局 auth store（用于全局组件即时使用）
+  useAuthStore.getState().setAuthFromTokens(tokens);
 }
 
 /**
@@ -98,6 +91,9 @@ export function clearAuthTokens(): void {
 
   // 清除cookie
   document.cookie = `${AUTH_TOKEN_COOKIE}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+
+  // 清除全局 auth store
+  useAuthStore.getState().clearAuth();
 }
 
 /**
