@@ -1,4 +1,5 @@
 import { useRouter } from "next/navigation";
+import { clearAuthTokens } from "@/lib/auth";
 
 /**
  * Proxy parameters for backend proxies, e.g. via Next.js rewrites.
@@ -20,6 +21,9 @@ export interface FetchWithAuthInit extends RequestInit {
  * Path for token refresh; backend endpoint should accept refreshToken in body and return new tokens.
  */
 const REFRESH_ENDPOINT = "/api/auth/refresh";
+
+// 登录页路径（统一跳转目标）
+const LOGIN_PATH = "/auth/v1/login";
 
 /**
  * Perform a token refresh using stored refreshToken.
@@ -85,14 +89,22 @@ async function handleUnauthorized(
       return internalFetchWithAuth(input, init, router, true);
     }
   }
+  // 刷新失败或不重试：清除所有认证缓存并跳转登录
   if (typeof window !== "undefined") {
+    try {
+      // 清理本地与cookie缓存
+      clearAuthTokens();
+    } catch {}
     try {
       const redirect = window.location.pathname + window.location.search + window.location.hash;
       localStorage.setItem("redirectAfterLogin", redirect);
     } catch {}
-    window.location.href = "/auth/login";
+    window.location.href = LOGIN_PATH;
   } else if (router) {
-    router.push("/auth/login");
+    try {
+      clearAuthTokens();
+    } catch {}
+    router.push(LOGIN_PATH);
   }
   throw new Error("Unauthorized - please log in again");
 }
