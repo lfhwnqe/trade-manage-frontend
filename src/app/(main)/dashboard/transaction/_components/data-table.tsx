@@ -23,6 +23,7 @@ import { withDndColumn } from "../../../../../components/data-table/table-utils"
 import { getProductColumns, dashboardColumns } from "./columns";
 import { sectionSchema } from "./schema";
 import { CreateProductDialog } from "./create-product-dialog";
+import { CreateTransactionDialog } from "./create-transaction-dialog";
 import { EditProductDialog } from "./edit-product-dialog";
 
 // 客户数据表格组件
@@ -52,6 +53,7 @@ export function CustomerDataTable({
   // 使用 ALL 作为“全部类型”的哨兵值，避免 SelectItem 为空字符串
   const [productTypeFilter, setProductTypeFilter] = React.useState<string>("ALL");
   const [createOpen, setCreateOpen] = React.useState(false);
+  const [createTxnOpen, setCreateTxnOpen] = React.useState(false);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const [editOpen, setEditOpen] = React.useState(false);
@@ -165,6 +167,10 @@ export function CustomerDataTable({
             <Download className="h-4 w-4" />
             <span className="hidden lg:inline">导出</span>
           </Button>
+          <Button variant="secondary" size="sm" onClick={() => setCreateTxnOpen(true)}>
+            <Plus className="h-4 w-4" />
+            <span className="hidden lg:inline">新增交易</span>
+          </Button>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
             <span className="hidden lg:inline">新增产品</span>
@@ -191,6 +197,16 @@ export function CustomerDataTable({
         onCreated={() => {
           // 触发查询并刷新
           onQuery?.();
+          onRefresh?.();
+        }}
+      />
+
+      {/* 新增交易 Dialog */}
+      <CreateTransactionDialog
+        open={createTxnOpen}
+        onOpenChange={setCreateTxnOpen}
+        onCreated={() => {
+          // 创建交易后，若需要刷新数据可在此触发
           onRefresh?.();
         }}
       />

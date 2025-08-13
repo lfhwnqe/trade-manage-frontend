@@ -4,10 +4,8 @@ import * as React from "react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { fetchWithAuth } from "@/utils/fetch-with-auth";
-import { ChartAreaInteractive } from "./_components/chart-area-interactive";
-import { CustomerDataTable } from "./_components/data-table";
-import { SectionCards } from "./_components/section-cards";
-import { ProductType, Product } from "@/types/product";
+import { TransactionsDataTable } from "./_components/transactions-table";
+import { PaymentMethod, Transaction, TransactionStatus, TransactionType } from "@/types/transaction";
 
 // 后端统一响应包装
 interface ApiResponse<T> {
@@ -18,8 +16,8 @@ interface ApiResponse<T> {
 }
 
 // 列表数据载荷（与后端统一返回结构对齐）
-interface CustomerListData {
-  data: Product[];
+interface TransactionListData {
+  data: Transaction[];
   total: number;
   page: number;
   limit: number;
@@ -29,23 +27,23 @@ interface CustomerListData {
 interface QueryParams {
   page?: number;
   limit?: number;
-  search?: string;
-  // 产品筛选参数
-  productType?: ProductType;
-  status?: string;
+  search?: string; // 可用于按客户ID、产品ID
+  transactionType?: TransactionType | string;
+  transactionStatus?: TransactionStatus | string;
+  paymentMethod?: PaymentMethod | string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
 
-// SWR fetcher for products data
+// SWR fetcher for transactions data
 const fetcher = async (url: string) => {
   const res = await fetchWithAuth(url);
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    const message = errorData?.message?.message || `获取产品数据失败: ${res.status} ${res.statusText}`;
+    const message = errorData?.message?.message || `获取交易数据失败: ${res.status} ${res.statusText}`;
     throw new Error(message);
   }
-  return (await res.json()) as ApiResponse<CustomerListData>;
+  return (await res.json()) as ApiResponse<TransactionListData>;
 };
 
 export default function Page() {
@@ -82,7 +80,7 @@ export default function Page() {
     error,
     isLoading,
     mutate,
-  } = useSWR(enabled ? `/api/v1/products?${paramsString}` : null, fetcher, {
+  } = useSWR(enabled ? `/api/v1/transactions?${paramsString}` : null, fetcher, {
     keepPreviousData: true,
     shouldRetryOnError: false,
   });
@@ -93,8 +91,8 @@ export default function Page() {
     }
   }, [error]);
 
-  // 注意：后端返回为 { success, data: { data: Customer[], total, ... } }
-  const customers = result?.data?.data ?? [];
+  // 注意：后端返回为 { success, data: { data: Transaction[], total, ... } }
+  const transactions = result?.data?.data ?? [];
 
   const handleRefresh = () => {
     if (enabled) mutate();
@@ -106,12 +104,12 @@ export default function Page() {
   };
 
   // 仅更新表单参数，不触发请求
-  // 适配产品筛选参数：仅接收 status、productType，忽略旧的 riskLevel
   const handleFilter = (filters: any) => {
     setFormParams((prev) => ({
       ...prev,
-      status: filters?.status,
-      productType: filters?.productType,
+      transactionType: filters?.transactionType,
+      transactionStatus: filters?.transactionStatus,
+      paymentMethod: filters?.paymentMethod,
       page: 1,
     }));
   };
@@ -124,10 +122,8 @@ export default function Page() {
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
-      {/* <SectionCards />
-      <ChartAreaInteractive /> */}
-      <CustomerDataTable
-        data={customers}
+      <TransactionsDataTable
+        data={transactions}
         loading={isLoading}
         onRefresh={handleRefresh}
         onSearch={handleSearch}
