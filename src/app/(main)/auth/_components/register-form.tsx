@@ -94,14 +94,12 @@ export function RegisterForm() {
         } else {
           // 如果不需要验证，直接登录
           toast.success("注册成功！正在为您登录...");
-          if (actualData.accessToken && actualData.refreshToken) {
-            setAuthTokens({
-              accessToken: actualData.accessToken,
-              refreshToken: actualData.refreshToken,
-            });
+          // 统一使用后端响应的 AuthTokens 结构：{ access_token, user }
+          if (actualData?.access_token && actualData?.user) {
+            setAuthTokens(actualData);
             router.push("/dashboard");
           } else {
-            // Fallback to login if tokens are not provided
+            // 如果未返回 token，则引导用户去登录
             router.push("/auth/v1/login");
           }
         }
