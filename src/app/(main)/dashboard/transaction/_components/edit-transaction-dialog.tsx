@@ -22,7 +22,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useFetchWithAuth, fetchWithAuth } from "@/utils/fetch-with-auth";
 import { PaymentMethod, Transaction, TransactionStatus, TransactionType } from "@/types/transaction";
 import useSWR from "swr";
-import { Customer } from "./schema";
+// 仅用于下拉选项的轻量客户类型
+type CustomerOption = { customerId: string; firstName?: string; lastName?: string };
 import { Product } from "@/types/product";
 
 // 编辑交易表单校验（与创建一致，便于发送完整载荷）
@@ -131,13 +132,13 @@ export function EditTransactionDialog({
     return (await res.json()) as ApiResponse<ListData<T>>;
   }
 
-  const { data: customersRes } = useSWR<ApiResponse<ListData<Customer>>>(
+  const { data: customersRes } = useSWR<ApiResponse<ListData<CustomerOption>>>(
     open ? "/api/v1/customers?page=1&limit=50&sortBy=createdAt&sortOrder=desc" : null,
-    (url) => swrFetcher<Customer>(url),
+    (url: string) => swrFetcher<CustomerOption>(url),
   );
   const { data: productsRes } = useSWR<ApiResponse<ListData<Product>>>(
     open ? "/api/v1/products?page=1&limit=50&sortBy=createdAt&sortOrder=desc" : null,
-    (url) => swrFetcher<Product>(url),
+    (url: string) => swrFetcher<Product>(url),
   );
   const customers = customersRes?.data?.data ?? [];
   const products = productsRes?.data?.data ?? [];
