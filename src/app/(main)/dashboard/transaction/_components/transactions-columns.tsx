@@ -13,8 +13,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function getTransactionColumns(opts?: { onViewDetail?: (txn: Transaction) => void }): ColumnDef<Transaction>[] {
+export function getTransactionColumns(opts?: {
+  onViewDetail?: (txn: Transaction) => void;
+  onEdit?: (txn: Transaction) => void;
+}): ColumnDef<Transaction>[] {
   const onViewDetail = opts?.onViewDetail;
+  const onEdit = opts?.onEdit;
   return [
     {
       accessorKey: "customerName",
@@ -103,6 +107,7 @@ export function getTransactionColumns(opts?: { onViewDetail?: (txn: Transaction)
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuItem onClick={() => onViewDetail?.(row.original)}>查看详情</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit?.(row.original)}>编辑</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),

@@ -24,6 +24,7 @@ import { DataTableViewOptions } from "../../../../../components/data-table/data-
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
 
 import { CreateTransactionDialog } from "./create-transaction-dialog";
+import { EditTransactionDialog } from "./edit-transaction-dialog";
 import { getTransactionColumns } from "./transactions-columns";
 import { PaymentMethod, Transaction, TransactionStatus, TransactionType } from "@/types/transaction";
 import useSWR from "swr";
@@ -58,6 +59,7 @@ export function TransactionsDataTable({
   const [createTxnOpen, setCreateTxnOpen] = React.useState(false);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedTxn, setSelectedTxn] = React.useState<Transaction | null>(null);
+  const [editOpen, setEditOpen] = React.useState(false);
 
   const columns = React.useMemo(
     () =>
@@ -65,6 +67,10 @@ export function TransactionsDataTable({
         onViewDetail: (txn) => {
           setSelectedTxn(txn);
           setDetailOpen(true);
+        },
+        onEdit: (txn) => {
+          setSelectedTxn(txn);
+          setEditOpen(true);
         },
       }),
     [],
@@ -206,6 +212,16 @@ export function TransactionsDataTable({
         open={createTxnOpen}
         onOpenChange={setCreateTxnOpen}
         onCreated={() => {
+          onQuery?.();
+          onRefresh?.();
+        }}
+      />
+
+      <EditTransactionDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        transaction={selectedTxn}
+        onUpdated={() => {
           onQuery?.();
           onRefresh?.();
         }}
