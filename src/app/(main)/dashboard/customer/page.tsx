@@ -36,6 +36,16 @@ interface QueryParams {
   sortOrder?: "asc" | "desc";
 }
 
+// 导出接口响应
+interface ExportResponse {
+  downloadUrl: string;
+  expireAt: string;
+  fileName: string;
+  objectKey: string;
+  bucket: string;
+  size: number;
+}
+
 // SWR fetcher for customer data
 const fetcher = async (url: string) => {
   const res = await fetchWithAuth(url);
@@ -64,6 +74,7 @@ export default function Page() {
   });
   // 是否允许发起查询
   const [enabled, setEnabled] = React.useState(false);
+  const [exporting, setExporting] = React.useState(false);
 
   // 构建请求 URL
   const paramsString = React.useMemo(() => {
@@ -115,6 +126,52 @@ export default function Page() {
     setEnabled(true);
   };
 
+  // 导出：使用当前筛选条件（表单参数）调用导出接口
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      const sp = new URLSearchParams();
+      Object.entries(formParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          sp.append(key, value.toString());
+        }
+      });
+      const url = `/api/v1/customers/export${sp.toString() ? `?${sp.toString()}` : ""}`;
+      const res = await fetchWithAuth(url, { method: "GET" });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}) as any);
+        const message =
+          errorData?.message?.message ||
+          errorData?.message ||
+          errorData?.error ||
+          "" ||
+          `导出失败: ${res.status} ${res.statusText}`;
+        throw new Error(message);
+      }
+      const json = await res.json();
+      const payload: ExportResponse | undefined =
+        json && typeof json === "object" && "success" in json && "data" in json
+          ? (json.data as ExportResponse)
+          : (json as ExportResponse);
+      if (!payload?.downloadUrl) {
+        throw new Error("导出接口未返回下载链接");
+      }
+      // 触发浏览器下载（跨域时将依赖服务端 Content-Disposition）
+      const a = document.createElement("a");
+      a.href = payload.downloadUrl;
+      a.download = payload.fileName || "customers.xlsx";
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast.success(`已开始下载：${payload.fileName || "customers.xlsx"}`);
+    } catch (err: any) {
+      toast.error(err?.message || "导出失败，请稍后重试");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
       {/* <SectionCards />
@@ -126,6 +183,8 @@ export default function Page() {
         onSearch={handleSearch}
         onFilter={handleFilter}
         onQuery={handleQuery}
+        onExport={handleExport}
+        exporting={exporting}
       />
     </div>
   );
