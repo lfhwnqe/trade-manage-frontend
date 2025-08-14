@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PAYMENT_METHOD_LABEL, TRANSACTION_STATUS_BADGE, TRANSACTION_TYPE_LABEL } from "@/lib/enum-labels";
 
 export function getTransactionColumns(opts?: {
   onViewDetail?: (txn: Transaction) => void;
@@ -39,7 +40,7 @@ export function getTransactionColumns(opts?: {
         const v = row.original.transactionType;
         const color =
           v === TransactionType.PURCHASE ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600";
-        const label = v === TransactionType.PURCHASE ? "申购" : "赎回";
+        const label = (TRANSACTION_TYPE_LABEL as Record<string, string>)[v] ?? String(v);
         return <Badge className={color}>{label}</Badge>;
       },
       size: 100,
@@ -65,7 +66,11 @@ export function getTransactionColumns(opts?: {
     {
       accessorKey: "paymentMethod",
       header: "支付方式",
-      cell: ({ row }) => <span className="text-xs">{row.original.paymentMethod}</span>,
+      cell: ({ row }) => {
+        const v = row.original.paymentMethod as string;
+        const label = (PAYMENT_METHOD_LABEL as Record<string, string>)[v] ?? String(v);
+        return <span className="text-xs">{label}</span>;
+      },
       size: 120,
     },
     {
@@ -73,13 +78,10 @@ export function getTransactionColumns(opts?: {
       header: "状态",
       cell: ({ row }) => {
         const s = row.original.transactionStatus as TransactionStatus | string;
-        const map: Record<string, { cls: string; label: string }> = {
-          [TransactionStatus.PENDING]: { cls: "bg-gray-500/10 text-gray-600", label: "待处理" },
-          [TransactionStatus.CONFIRMED]: { cls: "bg-indigo-500/10 text-indigo-600", label: "已确认" },
-          [TransactionStatus.COMPLETED]: { cls: "bg-blue-500/10 text-blue-600", label: "已完成" },
-          [TransactionStatus.CANCELLED]: { cls: "bg-red-500/10 text-red-600", label: "已取消" },
+        const cur = (TRANSACTION_STATUS_BADGE as Record<string, { cls: string; label: string }>)[s] || {
+          cls: "bg-muted",
+          label: String(s),
         };
-        const cur = map[s] || { cls: "bg-muted", label: String(s) };
         return <Badge className={cur.cls}>{cur.label}</Badge>;
       },
       size: 120,

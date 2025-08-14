@@ -28,6 +28,7 @@ import { CreateTransactionDialog } from "./create-transaction-dialog";
 import { EditTransactionDialog } from "./edit-transaction-dialog";
 import { getTransactionColumns } from "./transactions-columns";
 import { PaymentMethod, Transaction, TransactionStatus, TransactionType } from "@/types/transaction";
+import { toPaymentMethodLabel, toTransactionStatusLabel } from "@/lib/enum-labels";
 import useSWR from "swr";
 import { fetchWithAuth } from "@/utils/fetch-with-auth";
 
@@ -355,11 +356,11 @@ function TxnDetailContent({ txnId }: { txnId?: string | null }) {
       </div>
       <div>
         <Label className="text-muted-foreground text-xs">状态</Label>
-        <div className="text-sm">{t.transactionStatus}</div>
+        <div className="text-sm">{toTransactionStatusLabel(t.transactionStatus)}</div>
       </div>
       <div>
         <Label className="text-muted-foreground text-xs">支付方式</Label>
-        <div className="text-sm">{t.paymentMethod}</div>
+        <div className="text-sm">{toPaymentMethodLabel(t.paymentMethod)}</div>
       </div>
       {t.expectedMaturityDate && (
         <div>
