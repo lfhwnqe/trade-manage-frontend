@@ -19,6 +19,7 @@ import { DataTable as DataTableNew } from "../../../../../components/data-table/
 import { DataTablePagination } from "../../../../../components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "../../../../../components/data-table/data-table-view-options";
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
+import { QueryActionBar } from "@/components/layouts/query-action-bar";
 
 import { getProductColumns, dashboardColumns } from "./columns";
 import { sectionSchema } from "./schema";
@@ -115,61 +116,67 @@ export function CustomerDataTable({
 
   return (
     <div className="w-full flex-col justify-start gap-6">
-      {/* 工具栏 */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex flex-1 items-center gap-2">
-          <div className="relative max-w-sm flex-1">
-            <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
-            <Input
-              placeholder="搜索产品名称..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={handleStatusFilter}>
-            <SelectTrigger className="w-32">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="状态" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">全部状态</SelectItem>
-              <SelectItem value={ProductStatus.ACTIVE}>上架</SelectItem>
-              <SelectItem value={ProductStatus.INACTIVE}>下架</SelectItem>
-              <SelectItem value={ProductStatus.SUSPENDED}>暂停</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={productTypeFilter} onValueChange={handleProductTypeFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="全部类型" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">全部类型</SelectItem>
-              <SelectItem value={ProductType.WEALTH}>理财</SelectItem>
-              <SelectItem value={ProductType.FUND}>基金</SelectItem>
-              <SelectItem value={ProductType.BOND}>债券</SelectItem>
-              <SelectItem value={ProductType.INSURANCE}>保险</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button size="sm" onClick={() => onQuery?.()}>
-            <Search className="mr-2 h-4 w-4" /> 查询
-          </Button>
-        </div>
-        <div className="flex items-center gap-2">
-          <DataTableViewOptions table={table} />
-          <Button variant="outline" size="sm">
-            <Upload className="h-4 w-4" />
-            <span className="hidden lg:inline">导入</span>
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4" />
-            <span className="hidden lg:inline">导出</span>
-          </Button>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" />
-            <span className="hidden lg:inline">新增产品</span>
-          </Button>
-        </div>
+      {/* 工具栏：使用通用 QueryActionBar 支持自动换行 */}
+      <div className="mb-6">
+        <QueryActionBar
+          left={
+            <>
+              <div className="relative max-w-sm min-w-[200px] flex-1">
+                <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
+                <Input
+                  placeholder="搜索产品名称..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={handleStatusFilter}>
+                <SelectTrigger className="w-32">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="状态" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部状态</SelectItem>
+                  <SelectItem value={ProductStatus.ACTIVE}>上架</SelectItem>
+                  <SelectItem value={ProductStatus.INACTIVE}>下架</SelectItem>
+                  <SelectItem value={ProductStatus.SUSPENDED}>暂停</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={productTypeFilter} onValueChange={handleProductTypeFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="全部类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">全部类型</SelectItem>
+                  <SelectItem value={ProductType.WEALTH}>理财</SelectItem>
+                  <SelectItem value={ProductType.FUND}>基金</SelectItem>
+                  <SelectItem value={ProductType.BOND}>债券</SelectItem>
+                  <SelectItem value={ProductType.INSURANCE}>保险</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button size="sm" onClick={() => onQuery?.()}>
+                <Search className="mr-2 h-4 w-4" /> 查询
+              </Button>
+            </>
+          }
+          right={
+            <>
+              <DataTableViewOptions table={table} />
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4" />
+                <span className="hidden lg:inline">导入</span>
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4" />
+                <span className="hidden lg:inline">导出</span>
+              </Button>
+              <Button size="sm" onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden lg:inline">新增产品</span>
+              </Button>
+            </>
+          }
+        />
       </div>
 
       {/* 数据表格 */}

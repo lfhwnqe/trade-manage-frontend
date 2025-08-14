@@ -22,6 +22,7 @@ import { DataTable as DataTableNew } from "../../../../../components/data-table/
 import { DataTablePagination } from "../../../../../components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "../../../../../components/data-table/data-table-view-options";
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
+import { QueryActionBar } from "@/components/layouts/query-action-bar";
 
 import { CreateTransactionDialog } from "./create-transaction-dialog";
 import { EditTransactionDialog } from "./edit-transaction-dialog";
@@ -129,70 +130,76 @@ export function TransactionsDataTable({
 
   return (
     <div className="w-full flex-col justify-start gap-6">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex flex-1 items-center gap-2">
-          <div className="relative max-w-sm flex-1">
-            <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
-            <Input
-              placeholder="按客户ID/产品ID搜索..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          <Select value={typeFilter} onValueChange={handleTypeFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="交易类型" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">全部类型</SelectItem>
-              <SelectItem value={TransactionType.PURCHASE}>申购（purchase）</SelectItem>
-              <SelectItem value={TransactionType.REDEEM}>赎回（redeem）</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={handleStatusFilter}>
-            <SelectTrigger className="w-40">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="状态" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">全部状态</SelectItem>
-              <SelectItem value={TransactionStatus.PENDING}>待处理（pending）</SelectItem>
-              <SelectItem value={TransactionStatus.CONFIRMED}>已确认（confirmed）</SelectItem>
-              <SelectItem value={TransactionStatus.COMPLETED}>已完成（completed）</SelectItem>
-              <SelectItem value={TransactionStatus.CANCELLED}>已取消（cancelled）</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={payFilter} onValueChange={handlePayFilter}>
-            <SelectTrigger className="w-44">
-              <SelectValue placeholder="支付方式" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">全部支付方式</SelectItem>
-              <SelectItem value={PaymentMethod.BANK_TRANSFER}>银行转账（bank_transfer）</SelectItem>
-              <SelectItem value={PaymentMethod.CARD}>银行卡/信用卡（card）</SelectItem>
-              <SelectItem value={PaymentMethod.OTHER}>其他（other）</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button size="sm" onClick={() => onQuery?.()}>
-            <Search className="mr-2 h-4 w-4" /> 查询
-          </Button>
-        </div>
-        <div className="flex items-center gap-2">
-          <DataTableViewOptions table={table} />
-          <Button variant="outline" size="sm">
-            <Upload className="h-4 w-4" />
-            <span className="hidden lg:inline">导入</span>
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4" />
-            <span className="hidden lg:inline">导出</span>
-          </Button>
-          <Button variant="secondary" size="sm" onClick={() => setCreateTxnOpen(true)}>
-            <Plus className="h-4 w-4" />
-            <span className="hidden lg:inline">新增交易</span>
-          </Button>
-        </div>
+      <div className="mb-6">
+        <QueryActionBar
+          left={
+            <>
+              <div className="relative max-w-sm min-w-[200px] flex-1">
+                <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
+                <Input
+                  placeholder="按客户ID/产品ID搜索..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+              <Select value={typeFilter} onValueChange={handleTypeFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="交易类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">全部类型</SelectItem>
+                  <SelectItem value={TransactionType.PURCHASE}>申购（purchase）</SelectItem>
+                  <SelectItem value={TransactionType.REDEEM}>赎回（redeem）</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={handleStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="状态" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">全部状态</SelectItem>
+                  <SelectItem value={TransactionStatus.PENDING}>待处理（pending）</SelectItem>
+                  <SelectItem value={TransactionStatus.CONFIRMED}>已确认（confirmed）</SelectItem>
+                  <SelectItem value={TransactionStatus.COMPLETED}>已完成（completed）</SelectItem>
+                  <SelectItem value={TransactionStatus.CANCELLED}>已取消（cancelled）</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={payFilter} onValueChange={handlePayFilter}>
+                <SelectTrigger className="w-44">
+                  <SelectValue placeholder="支付方式" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">全部支付方式</SelectItem>
+                  <SelectItem value={PaymentMethod.BANK_TRANSFER}>银行转账（bank_transfer）</SelectItem>
+                  <SelectItem value={PaymentMethod.CARD}>银行卡/信用卡（card）</SelectItem>
+                  <SelectItem value={PaymentMethod.OTHER}>其他（other）</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button size="sm" onClick={() => onQuery?.()}>
+                <Search className="mr-2 h-4 w-4" /> 查询
+              </Button>
+            </>
+          }
+          right={
+            <>
+              <DataTableViewOptions table={table} />
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4" />
+                <span className="hidden lg:inline">导入</span>
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4" />
+                <span className="hidden lg:inline">导出</span>
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setCreateTxnOpen(true)}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden lg:inline">新增交易</span>
+              </Button>
+            </>
+          }
+        />
       </div>
 
       <div className="relative flex flex-col gap-4 overflow-auto">

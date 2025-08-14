@@ -18,6 +18,7 @@ import { DataTable as DataTableNew } from "../../../../../components/data-table/
 import { DataTablePagination } from "../../../../../components/data-table/data-table-pagination";
 import { DataTableViewOptions } from "../../../../../components/data-table/data-table-view-options";
 import { withDndColumn } from "../../../../../components/data-table/table-utils";
+import { QueryActionBar } from "@/components/layouts/query-action-bar";
 
 import { getCustomerColumns, customerColumns as defaultCustomerColumns, dashboardColumns } from "./columns";
 import { customerSchema, sectionSchema, Customer, CustomerStatus, RiskLevel } from "./schema";
@@ -112,60 +113,66 @@ export function CustomerDataTable({
 
   return (
     <div className="w-full flex-col justify-start gap-6">
-      {/* 工具栏 */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex flex-1 items-center gap-2">
-          <div className="relative max-w-sm flex-1">
-            <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
-            <Input
-              placeholder="搜索客户姓名、邮箱或手机号..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={handleStatusFilter}>
-            <SelectTrigger className="w-32">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="状态" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">全部状态</SelectItem>
-              <SelectItem value={CustomerStatus.ACTIVE}>活跃</SelectItem>
-              <SelectItem value={CustomerStatus.INACTIVE}>非活跃</SelectItem>
-              <SelectItem value={CustomerStatus.SUSPENDED}>暂停</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={riskLevelFilter} onValueChange={handleRiskLevelFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="风险等级" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">全部等级</SelectItem>
-              <SelectItem value={RiskLevel.LOW}>低</SelectItem>
-              <SelectItem value={RiskLevel.MEDIUM}>中</SelectItem>
-              <SelectItem value={RiskLevel.HIGH}>高</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button size="sm" onClick={() => onQuery?.()}>
-            <Search className="mr-2 h-4 w-4" /> 查询
-          </Button>
-        </div>
-        <div className="flex items-center gap-2">
-          <DataTableViewOptions table={table} />
-          <Button variant="outline" size="sm">
-            <Upload className="h-4 w-4" />
-            <span className="hidden lg:inline">导入</span>
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4" />
-            <span className="hidden lg:inline">导出</span>
-          </Button>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" />
-            <span className="hidden lg:inline">新增客户</span>
-          </Button>
-        </div>
+      {/* 工具栏：左右两侧均支持自动换行 */}
+      <div className="mb-6">
+        <QueryActionBar
+          left={
+            <>
+              <div className="relative max-w-sm min-w-[200px] flex-1">
+                <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
+                <Input
+                  placeholder="搜索客户姓名、邮箱或手机号..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={handleStatusFilter}>
+                <SelectTrigger className="w-32">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="状态" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部状态</SelectItem>
+                  <SelectItem value={CustomerStatus.ACTIVE}>活跃</SelectItem>
+                  <SelectItem value={CustomerStatus.INACTIVE}>非活跃</SelectItem>
+                  <SelectItem value={CustomerStatus.SUSPENDED}>暂停</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={riskLevelFilter} onValueChange={handleRiskLevelFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="风险等级" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部等级</SelectItem>
+                  <SelectItem value={RiskLevel.LOW}>低</SelectItem>
+                  <SelectItem value={RiskLevel.MEDIUM}>中</SelectItem>
+                  <SelectItem value={RiskLevel.HIGH}>高</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button size="sm" onClick={() => onQuery?.()}>
+                <Search className="mr-2 h-4 w-4" /> 查询
+              </Button>
+            </>
+          }
+          right={
+            <>
+              <DataTableViewOptions table={table} />
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4" />
+                <span className="hidden lg:inline">导入</span>
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4" />
+                <span className="hidden lg:inline">导出</span>
+              </Button>
+              <Button size="sm" onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden lg:inline">新增客户</span>
+              </Button>
+            </>
+          }
+        />
       </div>
 
       {/* 数据表格 */}
