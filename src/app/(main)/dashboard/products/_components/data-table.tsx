@@ -35,6 +35,8 @@ export function CustomerDataTable({
   onSearch,
   onFilter,
   onQuery,
+  onExport,
+  exporting,
   onCreated,
 }: {
   data: Product[];
@@ -44,6 +46,8 @@ export function CustomerDataTable({
   onSearch?: (query: string) => void;
   onFilter?: (filters: any) => void;
   onQuery?: () => void;
+  onExport?: () => void;
+  exporting?: boolean;
   onCreated?: () => void;
 }) {
   const [data, setData] = React.useState(() => initialData);
@@ -166,9 +170,9 @@ export function CustomerDataTable({
                 <Upload className="h-4 w-4" />
                 <span className="hidden lg:inline">导入</span>
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => onExport?.()} disabled={exporting}>
                 <Download className="h-4 w-4" />
-                <span className="hidden lg:inline">导出</span>
+                <span className="hidden lg:inline">{exporting ? "导出中..." : "导出"}</span>
               </Button>
               <Button size="sm" onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4" />

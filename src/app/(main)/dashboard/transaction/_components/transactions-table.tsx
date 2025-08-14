@@ -45,6 +45,8 @@ export function TransactionsDataTable({
   onSearch,
   onFilter,
   onQuery,
+  onExport,
+  exporting,
 }: {
   data: Transaction[];
   loading?: boolean;
@@ -52,6 +54,8 @@ export function TransactionsDataTable({
   onSearch?: (query: string) => void;
   onFilter?: (filters: TxnFilterOverrides) => void;
   onQuery?: () => void;
+  onExport?: () => void;
+  exporting?: boolean;
 }) {
   const [data, setData] = React.useState(() => initialData);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -190,9 +194,9 @@ export function TransactionsDataTable({
                 <Upload className="h-4 w-4" />
                 <span className="hidden lg:inline">导入</span>
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => onExport?.()} disabled={exporting}>
                 <Download className="h-4 w-4" />
-                <span className="hidden lg:inline">导出</span>
+                <span className="hidden lg:inline">{exporting ? "导出中..." : "导出"}</span>
               </Button>
               <Button variant="secondary" size="sm" onClick={() => setCreateTxnOpen(true)}>
                 <Plus className="h-4 w-4" />
