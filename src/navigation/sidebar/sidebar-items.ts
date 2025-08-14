@@ -10,8 +10,8 @@ import {
   // Lock,
   // Fingerprint,
   // SquareArrowUpRight,
-  // ChartBar,
-  // Banknote,
+  ChartBar,
+  Banknote,
   // Gauge,
   // GraduationCap,
   LayoutDashboard,
@@ -43,7 +43,11 @@ export interface NavGroup {
   items: NavMainItem[];
 }
 
-export const sidebarItems: NavGroup[] = [
+// 是否为本地开发环境
+export const IS_DEV = process.env.NODE_ENV === "development";
+
+// 基础（生产）菜单
+const baseSidebarItems: NavGroup[] = [
   {
     id: 1,
     label: "Dashboards",
@@ -105,75 +109,40 @@ export const sidebarItems: NavGroup[] = [
       // },
     ],
   },
-  // {
-  //   id: 2,
-  //   label: "Pages",
-  //   items: [
-  //     {
-  //       title: "Email",
-  //       url: "/mail",
-  //       icon: Mail,
-  //       comingSoon: true,
-  //     },
-  //     {
-  //       title: "Chat",
-  //       url: "/chat",
-  //       icon: MessageSquare,
-  //       comingSoon: true,
-  //     },
-  //     {
-  //       title: "Calendar",
-  //       url: "/calendar",
-  //       icon: Calendar,
-  //       comingSoon: true,
-  //     },
-  //     {
-  //       title: "Kanban",
-  //       url: "/kanban",
-  //       icon: Kanban,
-  //       comingSoon: true,
-  //     },
-  //     {
-  //       title: "Invoice",
-  //       url: "/invoice",
-  //       icon: ReceiptText,
-  //       comingSoon: true,
-  //     },
-  //     {
-  //       title: "Users",
-  //       url: "/users",
-  //       icon: Users,
-  //       comingSoon: true,
-  //     },
-  //     {
-  //       title: "Roles",
-  //       url: "/roles",
-  //       icon: Lock,
-  //       comingSoon: true,
-  //     },
-  //     {
-  //       title: "Authentication",
-  //       url: "/auth",
-  //       icon: Fingerprint,
-  //       subItems: [
-  //         { title: "Login v1", url: "/auth/v1/login", newTab: true },
-  //         { title: "Login v2", url: "/auth/v2/login", newTab: true },
-  //         { title: "Register v1", url: "/auth/v1/register", newTab: true },
-  //         { title: "Register v2", url: "/auth/v2/register", newTab: true },
-  //       ],
-  //     },
-  //   ],
-  // },
-  // {
-  //   id: 3,
-  //   label: "Misc",
-  //   items: [
-  //     {
-  //       title: "Others",
-  //       url: "/others",
-  //       icon: SquareArrowUpRight,
-  //       comingSoon: true,
-  //     },
-  //   ],
-  // },
 ];
+
+// dev 环境下追加到 Dashboards 分组的菜单（示例：模板/演示页面）
+const devDashboardItems: NavMainItem[] = [
+  {
+    title: "Default",
+    url: "/dashboard/default",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "CRM",
+    url: "/dashboard/crm",
+    icon: ChartBar,
+  },
+  {
+    title: "Finance",
+    url: "/dashboard/finance",
+    icon: Banknote,
+  },
+];
+
+// 合并逻辑：dev 环境将 devDashboardItems 合并到 Dashboards 分组末尾
+const withDevSidebarItems = (): NavGroup[] => {
+  if (!IS_DEV) return baseSidebarItems;
+
+  return baseSidebarItems.map((group) => {
+    if (group.label === "Dashboards") {
+      return {
+        ...group,
+        items: [...group.items, ...devDashboardItems],
+      };
+    }
+    return group;
+  });
+};
+
+export const sidebarItems: NavGroup[] = withDevSidebarItems();
