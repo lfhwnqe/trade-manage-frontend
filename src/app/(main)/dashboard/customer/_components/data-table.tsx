@@ -24,6 +24,7 @@ import { getCustomerColumns, customerColumns as defaultCustomerColumns, dashboar
 import { customerSchema, sectionSchema, Customer, CustomerStatus, RiskLevel } from "./schema";
 import { CreateCustomerDialog } from "./create-customer-dialog";
 import { EditCustomerDialog } from "./edit-customer-dialog";
+import { ImportCustomerDialog } from "./import-customer-dialog";
 
 // 客户数据表格组件
 export function CustomerDataTable({
@@ -58,6 +59,7 @@ export function CustomerDataTable({
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
   const [editOpen, setEditOpen] = React.useState(false);
   const [editCustomer, setEditCustomer] = React.useState<Customer | null>(null);
+  const [importOpen, setImportOpen] = React.useState(false);
   const columns = React.useMemo(
     () =>
       getCustomerColumns({
@@ -162,7 +164,7 @@ export function CustomerDataTable({
           right={
             <>
               <DataTableViewOptions table={table} />
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
                 <Upload className="h-4 w-4" />
                 <span className="hidden lg:inline">导入</span>
               </Button>
@@ -197,6 +199,17 @@ export function CustomerDataTable({
         onOpenChange={setCreateOpen}
         onCreated={() => {
           // 触发查询并刷新
+          onQuery?.();
+          onRefresh?.();
+        }}
+      />
+
+      {/* 导入客户 Dialog */}
+      <ImportCustomerDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={() => {
+          // 导入完成后刷新列表
           onQuery?.();
           onRefresh?.();
         }}
