@@ -104,11 +104,27 @@ export default function Page() {
     }
   }, [error]);
 
-  // 注意：后端返回为 { success, data: { data: Customer[], total, ... } }
-  const customers = result?.data?.data ?? [];
+  // 注意：后端返回为 { success, data: { data: Product[], total, page, limit, totalPages } }
+  const products = result?.data?.data ?? [];
+  const total = result?.data?.total ?? 0;
+  const page = result?.data?.page ?? queryParams.page ?? 1;
+  const limit = result?.data?.limit ?? queryParams.limit ?? 10;
+  const totalPages = result?.data?.totalPages ?? (limit ? Math.max(1, Math.ceil(total / limit)) : 1);
 
   const handleRefresh = () => {
     if (enabled) mutate();
+  };
+
+  // 分页交互：页码变化（1-based）
+  const handlePageChange = (nextPage: number) => {
+    setQueryParams((prev) => ({ ...(prev || {}), page: Math.max(1, nextPage) }));
+    setEnabled(true);
+  };
+
+  // 分页交互：每页数量变化
+  const handlePageSizeChange = (nextSize: number) => {
+    setQueryParams((prev) => ({ ...(prev || {}), limit: nextSize, page: 1 }));
+    setEnabled(true);
   };
 
   // 仅更新表单参数，不触发请求
@@ -183,7 +199,7 @@ export default function Page() {
       {/* <SectionCards />
       <ChartAreaInteractive /> */}
       <CustomerDataTable
-        data={customers}
+        data={products}
         loading={isLoading}
         onRefresh={handleRefresh}
         onSearch={handleSearch}
@@ -191,6 +207,14 @@ export default function Page() {
         onQuery={handleQuery}
         onExport={handleExport}
         exporting={exporting}
+        pagination={{
+          page,
+          limit,
+          total,
+          totalPages,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+        }}
       />
     </div>
   );

@@ -25,6 +25,7 @@ import { getProductColumns, dashboardColumns } from "./columns";
 import { sectionSchema } from "./schema";
 import { CreateProductDialog } from "./create-product-dialog";
 import { EditProductDialog } from "./edit-product-dialog";
+import { ImportProductDialog } from "./import-product-dialog";
 
 // 客户数据表格组件
 export function CustomerDataTable({
@@ -38,6 +39,7 @@ export function CustomerDataTable({
   onExport,
   exporting,
   onCreated,
+  pagination,
 }: {
   data: Product[];
   loading?: boolean;
@@ -49,6 +51,14 @@ export function CustomerDataTable({
   onExport?: () => void;
   exporting?: boolean;
   onCreated?: () => void;
+  pagination?: {
+    page: number; // 1-based
+    limit: number;
+    total: number;
+    totalPages: number;
+    onPageChange: (page: number) => void; // 1-based
+    onPageSizeChange: (size: number) => void;
+  };
 }) {
   const [data, setData] = React.useState(() => initialData);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -60,6 +70,7 @@ export function CustomerDataTable({
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const [editOpen, setEditOpen] = React.useState(false);
+  const [importOpen, setImportOpen] = React.useState(false);
   const columns = React.useMemo(
     () =>
       getProductColumns({
@@ -84,6 +95,19 @@ export function CustomerDataTable({
   React.useEffect(() => {
     setData(initialData);
   }, [initialData]);
+
+  // 同步外部分页到表格内部分页状态
+  React.useEffect(() => {
+    if (pagination) {
+      const safePage = Math.max(1, pagination.page);
+      if (table.getState().pagination.pageIndex !== safePage - 1) {
+        table.setPageIndex(safePage - 1);
+      }
+      if (table.getState().pagination.pageSize !== pagination.limit) {
+        table.setPageSize(pagination.limit);
+      }
+    }
+  }, [pagination?.page, pagination?.limit]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -166,7 +190,7 @@ export function CustomerDataTable({
           right={
             <>
               <DataTableViewOptions table={table} />
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
                 <Upload className="h-4 w-4" />
                 <span className="hidden lg:inline">导入</span>
               </Button>
@@ -186,15 +210,24 @@ export function CustomerDataTable({
       {/* 数据表格 */}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-lg border">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-muted-foreground text-sm">加载中...</div>
-            </div>
-          ) : (
-            <DataTableNew table={table} columns={columns} />
-          )}
+          <DataTableNew table={table} columns={columns} loading={loading} />
         </div>
-        <DataTablePagination table={table} />
+        <DataTablePagination
+          table={table}
+          server={
+            pagination
+              ? {
+                  page: pagination.page,
+                  pageSize: pagination.limit,
+                  pageCount: pagination.totalPages,
+                  total: pagination.total,
+                  onPageChange: pagination.onPageChange,
+                  onPageSizeChange: pagination.onPageSizeChange,
+                  loading,
+                }
+              : undefined
+          }
+        />
       </div>
       <CreateProductDialog
         open={createOpen}
@@ -212,6 +245,16 @@ export function CustomerDataTable({
         onOpenChange={setEditOpen}
         product={selectedProduct}
         onUpdated={() => {
+          onQuery?.();
+          onRefresh?.();
+        }}
+      />
+
+      {/* 导入产品 Dialog */}
+      <ImportProductDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={() => {
           onQuery?.();
           onRefresh?.();
         }}
