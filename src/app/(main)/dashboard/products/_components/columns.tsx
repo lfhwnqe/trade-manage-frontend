@@ -156,6 +156,7 @@ export function getCustomerColumns(opts?: {
         </DropdownMenu>
       ),
       enableSorting: false,
+      meta: { sticky: "right" },
     },
   ];
 }
@@ -298,6 +299,7 @@ export function getProductColumns(opts?: {
         </DropdownMenu>
       ),
       enableSorting: false,
+      meta: { sticky: "right" },
     },
   ];
 }

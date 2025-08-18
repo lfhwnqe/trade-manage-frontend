@@ -115,6 +115,7 @@ export function getTransactionColumns(opts?: {
       ),
       size: 80,
       enableSorting: false,
+      meta: { sticky: "right" },
     },
   ];
 }

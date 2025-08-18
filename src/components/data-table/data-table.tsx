@@ -19,6 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2 } from "lucide-react";
 
 import { DraggableRow } from "./draggable-row";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   table: TanStackTable<TData>;
@@ -76,9 +77,20 @@ function renderTableBody<TData, TValue>({
   }
   return table.getRowModel().rows.map((row) => (
     <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-      {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-      ))}
+      {row.getVisibleCells().map((cell) => {
+        const meta = (cell.column.columnDef.meta || {}) as { sticky?: "left" | "right" };
+        const stickyCls =
+          meta.sticky === "right"
+            ? "sticky right-0 z-10 bg-background border-l"
+            : meta.sticky === "left"
+              ? "sticky left-0 z-10 bg-background border-r"
+              : undefined;
+        return (
+          <TableCell key={cell.id} className={cn(stickyCls)}>
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        );
+      })}
     </TableRow>
   ));
 }
@@ -111,11 +123,20 @@ export function DataTable<TData, TValue>({
       <TableHeader className="bg-muted sticky top-0 z-10">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id} colSpan={header.colSpan}>
-                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-              </TableHead>
-            ))}
+            {headerGroup.headers.map((header) => {
+              const meta = (header.column.columnDef.meta || {}) as { sticky?: "left" | "right" };
+              const stickyCls =
+                meta.sticky === "right"
+                  ? "sticky right-0 z-20 bg-background"
+                  : meta.sticky === "left"
+                    ? "sticky left-0 z-20 bg-background"
+                    : undefined;
+              return (
+                <TableHead key={header.id} colSpan={header.colSpan} className={cn(stickyCls)}>
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              );
+            })}
           </TableRow>
         ))}
       </TableHeader>
