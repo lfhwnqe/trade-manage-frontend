@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Search, Filter, Download, Upload, Plus } from "lucide-react";
+import { Search, Filter, Download, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,6 @@ import { QueryActionBar } from "@/components/layouts/query-action-bar";
 import { CreateTransactionDialog } from "./create-transaction-dialog";
 import { EditTransactionDialog } from "./edit-transaction-dialog";
 import { getTransactionColumns } from "./transactions-columns";
-import { ImportTransactionDialog } from "./import-transaction-dialog";
 import { PaymentMethod, Transaction, TransactionStatus, TransactionType } from "@/types/transaction";
 import { toPaymentMethodLabel, toTransactionStatusLabel } from "@/lib/enum-labels";
 import useSWR from "swr";
@@ -76,7 +75,6 @@ export function TransactionsDataTable({
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [selectedTxn, setSelectedTxn] = React.useState<Transaction | null>(null);
   const [editOpen, setEditOpen] = React.useState(false);
-  const [importOpen, setImportOpen] = React.useState(false);
 
   const columns = React.useMemo(
     () =>
@@ -214,10 +212,6 @@ export function TransactionsDataTable({
           right={
             <>
               <DataTableViewOptions table={table} />
-              <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-                <Upload className="h-4 w-4" />
-                <span className="hidden lg:inline">导入</span>
-              </Button>
               <Button variant="outline" size="sm" onClick={() => onExport?.()} disabled={exporting}>
                 <Download className="h-4 w-4" />
                 <span className="hidden lg:inline">{exporting ? "导出中..." : "导出"}</span>
@@ -267,16 +261,6 @@ export function TransactionsDataTable({
         onOpenChange={setEditOpen}
         transaction={selectedTxn}
         onUpdated={() => {
-          onQuery?.();
-          onRefresh?.();
-        }}
-      />
-
-      {/* 导入交易 Dialog */}
-      <ImportTransactionDialog
-        open={importOpen}
-        onOpenChange={setImportOpen}
-        onImported={() => {
           onQuery?.();
           onRefresh?.();
         }}
