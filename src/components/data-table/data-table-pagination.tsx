@@ -61,6 +61,39 @@ export function DataTablePagination<TData>({ table, server }: DataTablePaginatio
       }
     : client;
 
+  // 统一跳转到指定页（1-based）
+  const gotoPage = (p: number) => {
+    const target = Math.min(Math.max(1, p), active.pageCount || 1);
+    if (server) {
+      server.onPageChange(target);
+    } else {
+      table.setPageIndex(target - 1);
+    }
+  };
+
+  // 生成紧凑页码列表（含省略号）
+  const buildPageItems = (current: number, total: number) => {
+    const items: (number | "ellipsis")[] = [];
+    if (!total || total <= 0) return items;
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) items.push(i);
+      return items;
+    }
+    const left = Math.max(2, current - 2);
+    const right = Math.min(total - 1, current + 2);
+    items.push(1);
+    if (left > 2) items.push("ellipsis");
+    else if (left === 2) items.push(2);
+    for (let i = Math.max(3, left); i <= Math.max(left, right); i++) {
+      if (i > 1 && i < total) items.push(i);
+    }
+    if (right < total - 1) items.push("ellipsis");
+    else if (right === total - 1) items.push(total - 1);
+    items.push(total);
+    return items;
+  };
+  const pageItems = buildPageItems(active.page, active.pageCount);
+
   return (
     <div className="flex items-center justify-between px-4">
       <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
@@ -114,6 +147,28 @@ export function DataTablePagination<TData>({ table, server }: DataTablePaginatio
             <span className="sr-only">上一页</span>
             <ChevronLeft />
           </Button>
+          {/* 数字页码选择 */}
+          <div className="hidden items-center gap-1 md:flex">
+            {pageItems.map((it, idx) =>
+              it === "ellipsis" ? (
+                <span key={`e-${idx}`} className="text-muted-foreground px-1 select-none">
+                  …
+                </span>
+              ) : (
+                <Button
+                  key={it}
+                  variant={it === active.page ? "default" : "outline"}
+                  className="h-8 w-8 p-0"
+                  size="icon"
+                  onClick={() => gotoPage(it)}
+                  disabled={!!server?.loading || it === active.page}
+                  aria-current={it === active.page ? "page" : undefined}
+                >
+                  {it}
+                </Button>
+              ),
+            )}
+          </div>
           <Button
             variant="outline"
             className="size-8"
