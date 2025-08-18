@@ -38,6 +38,7 @@ export function CustomerDataTable({
   onExport,
   exporting,
   onCreated,
+  pagination,
 }: {
   data: Customer[];
   loading?: boolean;
@@ -49,6 +50,14 @@ export function CustomerDataTable({
   onExport?: () => void;
   exporting?: boolean;
   onCreated?: () => void;
+  pagination?: {
+    page: number; // 1-based
+    limit: number;
+    total: number;
+    totalPages: number;
+    onPageChange: (page: number) => void; // 1-based
+    onPageSizeChange: (size: number) => void;
+  };
 }) {
   const [data, setData] = React.useState(() => initialData);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -84,6 +93,19 @@ export function CustomerDataTable({
   React.useEffect(() => {
     setData(initialData);
   }, [initialData]);
+
+  // 当传入服务端分页参数变化时，同步到表格内部状态（用于分页控件展示）
+  React.useEffect(() => {
+    if (pagination) {
+      const safePage = Math.max(1, pagination.page);
+      if (table.getState().pagination.pageIndex !== safePage - 1) {
+        table.setPageIndex(safePage - 1);
+      }
+      if (table.getState().pagination.pageSize !== pagination.limit) {
+        table.setPageSize(pagination.limit);
+      }
+    }
+  }, [pagination?.page, pagination?.limit]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -184,15 +206,24 @@ export function CustomerDataTable({
       {/* 数据表格 */}
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-lg border">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-muted-foreground text-sm">加载中...</div>
-            </div>
-          ) : (
-            <DataTableNew table={table} columns={columns} />
-          )}
+          <DataTableNew table={table} columns={columns} loading={loading} />
         </div>
-        <DataTablePagination table={table} />
+        <DataTablePagination
+          table={table}
+          server={
+            pagination
+              ? {
+                  page: pagination.page,
+                  pageSize: pagination.limit,
+                  pageCount: pagination.totalPages,
+                  total: pagination.total,
+                  onPageChange: pagination.onPageChange,
+                  onPageSizeChange: pagination.onPageSizeChange,
+                  loading,
+                }
+              : undefined
+          }
+        />
       </div>
       <CreateCustomerDialog
         open={createOpen}

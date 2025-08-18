@@ -5,29 +5,82 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface DataTablePaginationProps<TData> {
-  table: Table<TData>;
+interface ServerPaginationBinding {
+  // 服务端分页：当前页（1-based）
+  page: number;
+  // 每页数量
+  pageSize: number;
+  // 总条数
+  total: number;
+  // 总页数
+  pageCount: number;
+  // 切换页码（1-based）
+  onPageChange: (page: number) => void;
+  // 切换每页数量
+  onPageSizeChange: (size: number) => void;
+  // 可选：加载态
+  loading?: boolean;
 }
 
-export function DataTablePagination<TData>({ table }: DataTablePaginationProps<TData>) {
+interface DataTablePaginationProps<TData> {
+  table: Table<TData>;
+  server?: ServerPaginationBinding;
+}
+
+export function DataTablePagination<TData>({ table, server }: DataTablePaginationProps<TData>) {
+  // 客户端分页（默认）
+  const client = {
+    page: table.getState().pagination.pageIndex + 1,
+    pageSize: table.getState().pagination.pageSize,
+    pageCount: table.getPageCount(),
+    total: table.getFilteredRowModel().rows.length,
+    canPrev: table.getCanPreviousPage(),
+    canNext: table.getCanNextPage(),
+    goFirst: () => table.setPageIndex(0),
+    goPrev: () => table.previousPage(),
+    goNext: () => table.nextPage(),
+    goLast: () => table.setPageIndex(table.getPageCount() - 1),
+    setPageSize: (size: number) => table.setPageSize(size),
+  };
+
+  // 若提供了服务端分页绑定，则用它覆盖显示与交互
+  const active = server
+    ? {
+        page: server.page,
+        pageSize: server.pageSize,
+        pageCount: server.pageCount,
+        total: server.total,
+        canPrev: server.page > 1,
+        canNext: server.page < server.pageCount,
+        goFirst: () => server.onPageChange(1),
+        goPrev: () => server.onPageChange(Math.max(1, server.page - 1)),
+        goNext: () => server.onPageChange(Math.min(server.pageCount, server.page + 1)),
+        goLast: () => server.onPageChange(server.pageCount),
+        setPageSize: (size: number) => server.onPageSizeChange(size),
+        loading: server.loading,
+      }
+    : client;
+
   return (
     <div className="flex items-center justify-between px-4">
       <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-        {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
+        {/* 选中计数（仍使用客户端表格的选择模型） */}
+        {table.getFilteredSelectedRowModel().rows.length} / {active.total} 已选
       </div>
       <div className="flex w-full items-center gap-8 lg:w-fit">
         <div className="hidden items-center gap-2 lg:flex">
           <Label htmlFor="rows-per-page" className="text-sm font-medium">
-            Rows per page
+            每页
           </Label>
           <Select
-            value={`${table.getState().pagination.pageSize}`}
+            value={`${active.pageSize}`}
             onValueChange={(value) => {
-              table.setPageSize(Number(value));
+              active.setPageSize(Number(value));
             }}
+            disabled={!!server?.loading}
           >
             <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
+              <SelectValue placeholder={active.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
               {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -39,46 +92,46 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
           </Select>
         </div>
         <div className="flex w-fit items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          第 {active.page} / {active.pageCount} 页（共 {active.total} 条）
         </div>
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            onClick={active.goFirst}
+            disabled={!active.canPrev || !!server?.loading}
           >
-            <span className="sr-only">Go to first page</span>
+            <span className="sr-only">第一页</span>
             <ChevronsLeft />
           </Button>
           <Button
             variant="outline"
             className="size-8"
             size="icon"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={active.goPrev}
+            disabled={!active.canPrev || !!server?.loading}
           >
-            <span className="sr-only">Go to previous page</span>
+            <span className="sr-only">上一页</span>
             <ChevronLeft />
           </Button>
           <Button
             variant="outline"
             className="size-8"
             size="icon"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={active.goNext}
+            disabled={!active.canNext || !!server?.loading}
           >
-            <span className="sr-only">Go to next page</span>
+            <span className="sr-only">下一页</span>
             <ChevronRight />
           </Button>
           <Button
             variant="outline"
             className="hidden size-8 lg:flex"
             size="icon"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
+            onClick={active.goLast}
+            disabled={!active.canNext || !!server?.loading}
           >
-            <span className="sr-only">Go to last page</span>
+            <span className="sr-only">最后一页</span>
             <ChevronsRight />
           </Button>
         </div>

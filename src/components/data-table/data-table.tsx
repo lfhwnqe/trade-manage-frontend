@@ -16,6 +16,7 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-ki
 import { ColumnDef, flexRender, type Table as TanStackTable } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Loader2 } from "lucide-react";
 
 import { DraggableRow } from "./draggable-row";
 
@@ -24,6 +25,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   dndEnabled?: boolean;
   onReorder?: (newData: TData[]) => void;
+  loading?: boolean;
 }
 
 function renderTableBody<TData, TValue>({
@@ -31,12 +33,29 @@ function renderTableBody<TData, TValue>({
   columns,
   dndEnabled,
   dataIds,
+  loading,
 }: {
   table: TanStackTable<TData>;
   columns: ColumnDef<TData, TValue>[];
   dndEnabled: boolean;
   dataIds: UniqueIdentifier[];
+  loading?: boolean;
 }) {
+  // 整体 Loading：在表体用一行统一展示
+  if (loading) {
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-40">
+          <div className="flex h-full items-center justify-center">
+            <div className="flex flex-col items-center">
+              <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+              <div className="text-muted-foreground mt-2 text-sm">加载中...</div>
+            </div>
+          </div>
+        </TableCell>
+      </TableRow>
+    );
+  }
   if (!table.getRowModel().rows.length) {
     return (
       <TableRow>
@@ -69,6 +88,7 @@ export function DataTable<TData, TValue>({
   columns,
   dndEnabled = false,
   onReorder,
+  loading,
 }: DataTableProps<TData, TValue>) {
   const dataIds: UniqueIdentifier[] = table.getRowModel().rows.map((row) => Number(row.id) as UniqueIdentifier);
   const sortableId = React.useId();
@@ -86,23 +106,21 @@ export function DataTable<TData, TValue>({
     }
   }
 
-  const tableContent = (
+  const tableElement = (
     <Table>
       <TableHeader className="bg-muted sticky top-0 z-10">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => {
-              return (
-                <TableHead key={header.id} colSpan={header.colSpan}>
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
-              );
-            })}
+            {headerGroup.headers.map((header) => (
+              <TableHead key={header.id} colSpan={header.colSpan}>
+                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+              </TableHead>
+            ))}
           </TableRow>
         ))}
       </TableHeader>
       <TableBody className="**:data-[slot=table-cell]:first:w-8">
-        {renderTableBody({ table, columns, dndEnabled, dataIds })}
+        {renderTableBody({ table, columns, dndEnabled, dataIds, loading })}
       </TableBody>
     </Table>
   );
@@ -116,10 +134,10 @@ export function DataTable<TData, TValue>({
         sensors={sensors}
         id={sortableId}
       >
-        {tableContent}
+        {tableElement}
       </DndContext>
     );
   }
 
-  return tableContent;
+  return tableElement;
 }
