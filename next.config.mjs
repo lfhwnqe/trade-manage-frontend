@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Speed up deployments: skip ESLint and type-check during build
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },

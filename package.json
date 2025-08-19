@@ -10,6 +10,8 @@
     "build": "next build",
     "start": "next start -p 3456",
     "lint": "next lint --quiet",
+    "lint:ci": "eslint . --max-warnings=0 --cache --cache-location .eslintcache",
+    "typecheck": "tsc --noEmit --incremental --pretty false",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
