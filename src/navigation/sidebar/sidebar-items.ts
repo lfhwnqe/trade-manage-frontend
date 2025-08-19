@@ -73,6 +73,11 @@ const baseSidebarItems: NavGroup[] = [
         url: "/dashboard/transaction",
         icon: LayoutDashboard,
       },
+      {
+        title: "用户订单",
+        url: "/dashboard/user-transaction",
+        icon: LayoutDashboard,
+      },
       // {
       //   title: "CRM",
       //   url: "/dashboard/crm",
