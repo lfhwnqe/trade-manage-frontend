@@ -82,6 +82,12 @@ Check out [this repo](https://github.com/arhamkhnz/next-colocation-template) for
 
 You can run this project locally, or deploy it instantly with Vercel.
 
+### Prerequisites
+
+- Node.js 22 or higher is required. Use `nvm`/`asdf` to switch versions easily.
+  - With `nvm`: `nvm install` then `nvm use` (project provides `.nvmrc`).
+  - With `asdf`: `asdf install nodejs latest:22` (project provides `.node-version`).
+
 ### Deploy with Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farhamkhnz%2Fnext-shadcn-admin-dashboard)
