@@ -18,6 +18,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { Role } from "@/types/auth";
+
 export interface NavSubItem {
   title: string;
   url: string;
@@ -25,6 +27,7 @@ export interface NavSubItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: Role[]; // 允许访问的角色列表，为空表示所有角色都可访问
 }
 
 export interface NavMainItem {
@@ -35,6 +38,7 @@ export interface NavMainItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: Role[]; // 允许访问的角色列表，为空表示所有角色都可访问
 }
 
 export interface NavGroup {
@@ -62,21 +66,26 @@ const baseSidebarItems: NavGroup[] = [
         title: "客户管理",
         url: "/dashboard/customer",
         icon: LayoutDashboard,
+        roles: [Role.ADMIN, Role.SUPER_ADMIN], // 只有管理员和版主可以访问
       },
       {
         title: "产品管理",
         url: "/dashboard/products",
         icon: LayoutDashboard,
+        roles: [Role.ADMIN, Role.SUPER_ADMIN], // 只有管理员可以访问
       },
       {
         title: "交易记录",
         url: "/dashboard/transaction",
         icon: LayoutDashboard,
+        roles: [Role.ADMIN, Role.SUPER_ADMIN], // 管理员和版主可以访问
       },
       {
         title: "用户订单",
         url: "/dashboard/user-transaction",
         icon: LayoutDashboard,
+        roles: [Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER], // 管理员和版主可以访问
+        // 不设置 roles，表示所有角色都可以访问
       },
       // {
       //   title: "CRM",
@@ -148,6 +157,36 @@ const withDevSidebarItems = (): NavGroup[] => {
     }
     return group;
   });
+};
+
+// 根据用户角色过滤菜单项
+export const filterMenuByRole = (menuGroups: NavGroup[], userRole?: string): NavGroup[] => {
+  if (!userRole) return []; // 没有角色信息，不显示任何菜单
+
+  return menuGroups
+    .map((group) => ({
+      ...group,
+      items: group.items
+        .filter((item) => {
+          // 如果菜单项没有指定 roles，则所有角色都可以访问
+          if (!item.roles || item.roles.length === 0) {
+            return true;
+          }
+          // 检查用户角色是否在允许的角色列表中
+          return item.roles.includes(userRole as Role);
+        })
+        .map((item) => ({
+          ...item,
+          // 如果有子菜单，也要进行角色过滤
+          subItems: item.subItems?.filter((subItem) => {
+            if (!subItem.roles || subItem.roles.length === 0) {
+              return true;
+            }
+            return subItem.roles.includes(userRole as Role);
+          }),
+        })),
+    }))
+    .filter((group) => group.items.length > 0); // 过滤掉没有菜单项的分组
 };
 
 export const sidebarItems: NavGroup[] = withDevSidebarItems();

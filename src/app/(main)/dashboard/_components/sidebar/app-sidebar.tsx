@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, CircleHelp, Search, Database, ClipboardList, File, Command } from "lucide-react";
+import { Command } from "lucide-react";
 
 import {
   Sidebar,
@@ -12,12 +12,18 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
-import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import { sidebarItems, filterMenuByRole } from "@/navigation/sidebar/sidebar-items";
+import { useAuthStore } from "@/stores/auth/auth-store";
 
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const user = useAuthStore((state) => state.user);
+
+  // 根据用户角色过滤菜单
+  const filteredMenuItems = filterMenuByRole(sidebarItems, user?.role);
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -33,7 +39,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItems} />
+        <NavMain items={filteredMenuItems} />
         {/* <NavDocuments items={data.documents} /> */}
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
