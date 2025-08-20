@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react";
 
@@ -26,6 +27,7 @@ type SwitchUser = {
 };
 
 export function AccountSwitcher() {
+  const router = useRouter();
   const authUser = useAuthStore((s) => s.user);
   const users = useMemo<SwitchUser[]>(() => {
     if (!authUser) {
@@ -81,9 +83,13 @@ export function AccountSwitcher() {
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/account");
+            }}
+          >
             <BadgeCheck />
-            Account
+            账号
           </DropdownMenuItem>
           <DropdownMenuItem>
             <CreditCard />
