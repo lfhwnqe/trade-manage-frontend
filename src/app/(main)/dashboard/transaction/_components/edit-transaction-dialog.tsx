@@ -253,9 +253,7 @@ export function EditTransactionDialog({
                     <SelectContent>
                       {products.map((p) => (
                         <SelectItem key={p.productId} value={p.productId}>
-                          <span className="block break-words whitespace-normal">
-                            {p.productName}（{p.productId}）
-                          </span>
+                          <span className="block break-words whitespace-normal">{p.productName}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -109,7 +109,6 @@ export function getTransactionColumns(opts?: {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuItem onClick={() => onViewDetail?.(row.original)}>查看详情</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit?.(row.original)}>编辑</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),

@@ -218,7 +218,7 @@ export function CreateTransactionDialog({
                         <SelectItem key={c.customerId} value={c.customerId}>
                           <span className="block break-words whitespace-normal">
                             {c.lastName}
-                            {c.firstName ? c.firstName : ""}（{c.customerId}）
+                            {c.firstName ? c.firstName : ""}
                           </span>
                         </SelectItem>
                       ))}
@@ -243,9 +243,7 @@ export function CreateTransactionDialog({
                     <SelectContent>
                       {products.map((p) => (
                         <SelectItem key={p.productId} value={p.productId}>
-                          <span className="block break-words whitespace-normal">
-                            {p.productName}（{p.productId}）
-                          </span>
+                          <span className="block break-words whitespace-normal">{p.productName}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
