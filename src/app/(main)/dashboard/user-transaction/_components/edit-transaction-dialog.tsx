@@ -219,7 +219,7 @@ export function EditTransactionDialog({
                   <FormLabel>客户</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择客户" />
                       </SelectTrigger>
                     </FormControl>
@@ -227,7 +227,7 @@ export function EditTransactionDialog({
                       {customers.map((c) => (
                         <SelectItem key={c.customerId} value={c.customerId}>
                           {c.lastName}
-                          {c.firstName ? c.firstName : ""}（{c.customerId}）
+                          {c.firstName ? c.firstName : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -244,14 +244,14 @@ export function EditTransactionDialog({
                   <FormLabel>产品</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择产品" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {products.map((p) => (
                         <SelectItem key={p.productId} value={p.productId}>
-                          {p.productName}（{p.productId}）
+                          {p.productName}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -268,7 +268,7 @@ export function EditTransactionDialog({
                   <FormLabel>交易类型</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择交易类型" />
                       </SelectTrigger>
                     </FormControl>
@@ -289,7 +289,7 @@ export function EditTransactionDialog({
                   <FormLabel>支付方式</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择支付方式" />
                       </SelectTrigger>
                     </FormControl>
@@ -352,7 +352,7 @@ export function EditTransactionDialog({
                   <FormLabel>交易状态（可选）</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择交易状态" />
                       </SelectTrigger>
                     </FormControl>

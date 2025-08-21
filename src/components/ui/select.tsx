@@ -117,7 +117,9 @@ function SelectItem({
           <CheckIcon className="size-4" />
         </SelectPrimitive.ItemIndicator>
       </span>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      <SelectPrimitive.ItemText asChild>
+        <span className="block whitespace-normal break-words">{children}</span>
+      </SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
   )
 }

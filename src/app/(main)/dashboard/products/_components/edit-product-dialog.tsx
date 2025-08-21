@@ -166,7 +166,7 @@ export function EditProductDialog({
                   <FormLabel>产品类型</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择产品类型" />
                       </SelectTrigger>
                     </FormControl>
@@ -190,7 +190,7 @@ export function EditProductDialog({
                   <FormLabel>风险等级</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择风险等级" />
                       </SelectTrigger>
                     </FormControl>
@@ -311,7 +311,7 @@ export function EditProductDialog({
                   <FormLabel>产品状态</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value ?? ProductStatus.ACTIVE}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择产品状态" />
                       </SelectTrigger>
                     </FormControl>

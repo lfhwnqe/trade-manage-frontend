@@ -152,7 +152,7 @@ export function CreateProductDialog({
                   <FormLabel>产品类型</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择产品类型" />
                       </SelectTrigger>
                     </FormControl>
@@ -176,7 +176,7 @@ export function CreateProductDialog({
                   <FormLabel>风险等级</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择风险等级" />
                       </SelectTrigger>
                     </FormControl>
