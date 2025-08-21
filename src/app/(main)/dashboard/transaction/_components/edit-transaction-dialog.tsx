@@ -23,7 +23,7 @@ import { useFetchWithAuth, fetchWithAuth } from "@/utils/fetch-with-auth";
 import { PaymentMethod, Transaction, TransactionStatus, TransactionType } from "@/types/transaction";
 import useSWR from "swr";
 // 仅用于下拉选项的轻量客户类型
-type CustomerOption = { customerId: string; firstName?: string; lastName?: string };
+type CustomerOption = { customerId: string; firstName?: string; lastName?: string; phone: string };
 import { Product } from "@/types/product";
 
 // 编辑交易表单校验（与创建一致，便于发送完整载荷）
@@ -133,11 +133,11 @@ export function EditTransactionDialog({
   }
 
   const { data: customersRes } = useSWR<ApiResponse<ListData<CustomerOption>>>(
-    open ? "/api/v1/customers?page=1&limit=50&sortBy=createdAt&sortOrder=desc" : null,
+    open ? "/api/v1/customers?page=1&limit=500&sortBy=createdAt&sortOrder=desc" : null,
     (url: string) => swrFetcher<CustomerOption>(url),
   );
   const { data: productsRes } = useSWR<ApiResponse<ListData<Product>>>(
-    open ? "/api/v1/products?page=1&limit=50&sortBy=createdAt&sortOrder=desc" : null,
+    open ? "/api/v1/products?page=1&limit=500&sortBy=createdAt&sortOrder=desc" : null,
     (url: string) => swrFetcher<Product>(url),
   );
   const customers = customersRes?.data?.data ?? [];
@@ -228,7 +228,7 @@ export function EditTransactionDialog({
                         <SelectItem key={c.customerId} value={c.customerId}>
                           <span className="block break-words whitespace-normal">
                             {c.lastName}
-                            {c.firstName ? c.firstName : ""}
+                            {c.firstName ? c.firstName : ""}-{c.phone}
                           </span>
                         </SelectItem>
                       ))}
