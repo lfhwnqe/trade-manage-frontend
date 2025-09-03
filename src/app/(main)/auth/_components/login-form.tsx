@@ -50,24 +50,68 @@ export function LoginForm() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("登录成功！");
+        // 兼容新后端返回格式：{ success, data: { accessToken, idToken, refreshToken, ... } }
+        const dataWrapper = result?.data ?? result;
 
-        // 后端使用了拦截器，实际数据在 result.data 中
-        const authData = result.data as AuthTokens;
+        const accessToken: string | undefined = dataWrapper?.accessToken;
+        const idToken: string | undefined = dataWrapper?.idToken;
+        const refreshToken: string | undefined = dataWrapper?.refreshToken;
 
-        if (authData && authData.access_token && authData.user) {
-          setAuthTokens(authData);
-
-          // 检查是否有登录后重定向的页面
-          const redirectPath = localStorage.getItem("redirectAfterLogin");
-          if (redirectPath) {
-            localStorage.removeItem("redirectAfterLogin");
-            router.push(redirectPath);
-          } else {
-            router.push("/dashboard");
+        // 从 idToken 解析用户信息（JWT base64url 解码）
+        const parseJwtPayload = (token?: string): Record<string, any> | null => {
+          if (!token || typeof token !== "string") return null;
+          try {
+            const parts = token.split(".");
+            if (parts.length < 2) return null;
+            const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+            const json = decodeURIComponent(
+              atob(base64)
+                .split("")
+                .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+                .join(""),
+            );
+            return JSON.parse(json);
+          } catch {
+            return null;
           }
+        };
+
+        const payload = parseJwtPayload(idToken) || {};
+
+        // 构造现有前端所需的 AuthTokens 结构
+        const getStr = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
+        const emailStr = getStr(payload.email);
+
+        const mapped: AuthTokens | null = accessToken
+          ? {
+              access_token: accessToken,
+              user: {
+                userId: getStr(payload.sub) || getStr(payload.userId) || "",
+                username:
+                  getStr(payload["cognito:username"]) ||
+                  getStr(payload.username) ||
+                  (emailStr ? emailStr.split("@")[0] : ""),
+                email: emailStr || "",
+                role: getStr(payload["custom:role"]) || "user",
+              },
+            }
+          : null;
+
+        if (mapped && mapped.access_token && mapped.user) {
+          // 写入 refreshToken（供 /api/auth/refresh 使用）
+          if (refreshToken) {
+            localStorage.setItem("refreshToken", refreshToken);
+          }
+
+          setAuthTokens(mapped);
+          toast.success("登录成功！");
+
+          // 登录后重定向
+          const redirectPath = typeof window !== "undefined" ? localStorage.getItem("redirectAfterLogin") : null;
+          if (redirectPath) localStorage.removeItem("redirectAfterLogin");
+          router.push(redirectPath || "/dashboard");
         } else {
-          toast.error("登录响应格式错误，请联系管理员。");
+          toast.error("登录响应格式不符合预期，请联系管理员。");
         }
       } else {
         // 使用后端返回的错误信息（兼容 message 为对象或字符串的情况）
@@ -83,7 +127,7 @@ export function LoginForm() {
           if (response.status === 401) return "用户名或密码错误";
           return "登录失败，请稍后重试。";
         })();
-        toast.error(errorMessage as string);
+        toast.error(String(errorMessage));
       }
     } catch (error) {
       console.error("Login request failed:", error);
