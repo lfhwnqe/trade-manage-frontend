@@ -77,7 +77,6 @@ export function LoginForm() {
         };
 
         const payload = parseJwtPayload(idToken) || {};
-        console.log("🌹payload:", payload);
 
         // 构造现有前端所需的 AuthTokens 结构
         const getStr = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
