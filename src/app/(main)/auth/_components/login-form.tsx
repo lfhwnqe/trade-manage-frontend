@@ -77,6 +77,7 @@ export function LoginForm() {
         };
 
         const payload = parseJwtPayload(idToken) || {};
+        console.log("🌹payload:", payload);
 
         // 构造现有前端所需的 AuthTokens 结构
         const getStr = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
@@ -92,7 +93,7 @@ export function LoginForm() {
                   getStr(payload.username) ||
                   (emailStr ? emailStr.split("@")[0] : ""),
                 email: emailStr || "",
-                role: getStr(payload["custom:role"]) || "user",
+                role: payload["cognito:groups"]?.[0] || "user",
               },
             }
           : null;
