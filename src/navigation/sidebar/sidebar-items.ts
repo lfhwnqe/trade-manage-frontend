@@ -84,7 +84,7 @@ const baseSidebarItems: NavGroup[] = [
         title: "用户订单",
         url: "/dashboard/user-transaction",
         icon: LayoutDashboard,
-        roles: [Role.CUSTOMER], // 管理员和版主可以访问
+        roles: [Role.USER], // 管理员和版主可以访问
         // 不设置 roles，表示所有角色都可以访问
       },
       // {
